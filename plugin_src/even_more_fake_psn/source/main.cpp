@@ -122,7 +122,7 @@ s32 CreateNpRequest(bool async) {
 
 extern "C" {
 
-attr_public const char* g_pluginName = "host override";
+attr_public const char* g_pluginName = "even faker psn";
 attr_public const char* g_pluginDesc = "";
 attr_public const char* g_pluginAuth = "kalaposfos";
 attr_public u32 g_pluginVersion = 0x00000100; // 1.00
@@ -789,7 +789,7 @@ s32 attr_public plugin_load(s32 argc, const char* argv[]) {
         memcpy(titleid, procInfo.titleid, sizeof(titleid));
         print_proc_info();
     }
-    HOOK(sceHttpCreateRequestWithURL);
+    // HOOK(sceHttpCreateRequestWithURL);
 
     HOOK(sceNpCreateRequest);
     HOOK(sceNpCreateAsyncRequest);
@@ -825,7 +825,7 @@ s32 attr_public plugin_load(s32 argc, const char* argv[]) {
 
 s32 attr_public plugin_unload(s32 argc, const char* argv[]) {
     final_printf("[GoldHEN] <%s\\Ver.0x%08x> %s\n", g_pluginName, g_pluginVersion, __func__);
-    UNHOOK(sceHttpCreateRequestWithURL);
+    // UNHOOK(sceHttpCreateRequestWithURL);
 
     UNHOOK(sceNpCreateRequest);
     UNHOOK(sceNpCreateAsyncRequest);
