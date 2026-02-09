@@ -164,7 +164,7 @@ void sceNpGetNpId();
 // Empty Comment
 void sceNpGetNpReachabilityState();
 
-int32_t sceNpGetOnlineId(int32_t UserID, Libraries::Np::OrbisNpOnlineId* onlineID);
+int32_t sceNpGetOnlineId(int32_t UserID, OrbisNpOnlineId* onlineID);
 
 // Empty Comment
 void sceNpGetParentalControlInfo();

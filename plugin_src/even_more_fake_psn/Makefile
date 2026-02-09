@@ -18,7 +18,7 @@ TARGET_ELF   := $(BUILD_FOLDER)/elf$(TYPE)/$(OUTPUT_PRX)
 TARGETSTUB   := $(OUTPUT_PRX).so
 
 # Libraries linked into the ELF.
-LIBS := -lSceLibcInternal -lGoldHEN_Hook -lkernel -lSceSysmodule -lc -lc++ -lSceHttp -lSceUserService -lSceNpManager
+LIBS := -lSceLibcInternal -lGoldHEN_Hook -lkernel -lSceSysmodule -lc -lc++ -lSceHttp -lSceUserService -lSceNpManager -lSceNpWebApi -lSceNpAuth
 
 EXTRAFLAGS := $(DEBUG_FLAGS) $(LOG_TYPE) -fcolor-diagnostics -Wall
 
@@ -26,9 +26,9 @@ EXTRAFLAGS := $(DEBUG_FLAGS) $(LOG_TYPE) -fcolor-diagnostics -Wall
 # Root vars
 TOOLCHAIN     := $(OO_PS4_TOOLCHAIN)
 GH_SDK        := $(GOLDHEN_SDK)
-PROJDIR       := ../$(shell basename $(CURDIR))/source
-INTDIR        := ../$(shell basename $(CURDIR))/build
-INCLUDEDIR    := ../$(shell basename $(CURDIR))/include
+PROJDIR       := source
+INTDIR        := build
+INCLUDEDIR    := include
 COMMON_DIR    := ../../common
 
 # Define objects to build

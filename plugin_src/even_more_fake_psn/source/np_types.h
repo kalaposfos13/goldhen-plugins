@@ -6,7 +6,6 @@
 #include "types.h"
 
 // For structs and constants shared between multiple Np libraries.
-namespace Libraries::Np {
 
 constexpr s32 ORBIS_NP_ONLINEID_MAX_LENGTH = 16;
 
@@ -41,5 +40,3 @@ struct OrbisNpIdToken {
     char token[4097];
     u8 padding[7];
 };
-
-}; // namespace Libraries::Np

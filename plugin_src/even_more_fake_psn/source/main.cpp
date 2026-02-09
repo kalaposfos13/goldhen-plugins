@@ -7,6 +7,7 @@
 #include "logging.h"
 #include "types.h"
 
+#include <map>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -17,11 +18,17 @@
 #include <orbis/UserService.h>
 #include <orbis/libkernel.h>
 
+#include "np_auth.h"
+#include "np_auth_error.h"
+#include "np_error.h"
 #include "np_manager.h"
 #include "np_types.h"
+#include "np_web_api.h"
 
 using namespace Libraries::Np::NpManager;
-using namespace Libraries::Np;
+// using namespace Libraries::Np;
+// using namespace Libraries::Np::NpAuth;
+// using namespace Libraries::Np::NpWebApi;
 
 namespace Config {
 std::string getUserName() {
@@ -34,7 +41,7 @@ std::string getUserName() {
 } // namespace Config
 
 std::string ReplaceHost(std::string url, bool force_http = true) {
-    // LOG_INFO("Url: {}", url);
+    LOG_ERROR("Current Url: '{}'", url);
     // return url;
 
     std::string new_host = "bbnet.yahargul.info";
@@ -65,7 +72,7 @@ std::string ReplaceHost(std::string url, bool force_http = true) {
         }
     }
 
-    // LOG_INFO("Replaced URL host, new URL: {}", url);
+    LOG_ERROR("Replaced URL host, new URL: '{}'", url);
 
     return url;
 }
@@ -89,6 +96,96 @@ struct NpRequest {
 };
 
 static std::vector<NpRequest> g_requests;
+
+static s32 g_active_auth_requests = 0;
+static std::mutex g_auth_request_mutex;
+
+const char* g_dummy_auth_code = "DUMMY-CODE";
+
+enum class NpAuthRequestState {
+    None = 0,
+    Ready = 1,
+    Aborted = 2,
+    Complete = 3,
+};
+
+struct NpAuthRequest {
+    NpAuthRequestState state;
+    bool async;
+    s32 result;
+};
+
+static std::vector<NpAuthRequest> g_auth_requests;
+
+static std::map<SceNpWebApiMockRequestType, std::string>& get_templates() {
+    static std::map<SceNpWebApiMockRequestType, std::string> instance{
+        {REQ_BLOCK_LIST, "{\"totalResults\": 0, \"blockList\": []}"},
+        {REQ_FRIEND_LIST, "{\"totalResults\": 0, \"friendList\": []}"},
+    };
+    return instance;
+}
+
+static std::map<s64, SceNpWebApiMockRequestType>& get_mrequests() {
+    static std::map<s64, SceNpWebApiMockRequestType> instance;
+    return instance;
+}
+
+static std::mutex& get_mrequests_mutex() {
+    static std::mutex instance;
+    return instance;
+}
+
+s32 GetAuthorizationCode(s32 req_id, const OrbisNpAuthGetAuthorizationCodeParameterA* param,
+                         s32 flag, OrbisNpAuthorizationCode* auth_code, s32* issuer_id) {
+    if (param == nullptr || auth_code == nullptr) {
+        return ORBIS_NP_AUTH_ERROR_INVALID_ARGUMENT;
+    }
+    if (param->size != sizeof(OrbisNpAuthGetAuthorizationCodeParameter)) {
+        return ORBIS_NP_AUTH_ERROR_INVALID_SIZE;
+    }
+    if (param->user_id == -1 || param->client_id == nullptr || param->scope == nullptr) {
+        return ORBIS_NP_AUTH_ERROR_INVALID_ARGUMENT;
+    }
+
+    std::scoped_lock lk{g_auth_request_mutex};
+
+    // From here the actual authorization code request is performed.
+    s32 req_index = req_id - ORBIS_NP_AUTH_REQUEST_ID_OFFSET - 1;
+    if (g_active_auth_requests == 0 || g_auth_requests.size() <= req_index ||
+        g_auth_requests[req_index].state == NpAuthRequestState::None) {
+        return ORBIS_NP_AUTH_ERROR_REQUEST_NOT_FOUND;
+    }
+
+    auto& request = g_auth_requests[req_index];
+    if (request.state == NpAuthRequestState::Complete) {
+        request.result = ORBIS_NP_AUTH_ERROR_INVALID_ARGUMENT;
+        return ORBIS_NP_AUTH_ERROR_INVALID_ARGUMENT;
+    } else if (request.state == NpAuthRequestState::Aborted) {
+        request.result = ORBIS_NP_AUTH_ERROR_ABORTED;
+        return ORBIS_NP_AUTH_ERROR_ABORTED;
+    }
+
+    request.state = NpAuthRequestState::Complete;
+    if (!g_signed_in) {
+        request.result = ORBIS_NP_ERROR_SIGNED_OUT;
+        // If the request is processed in some form, and it's an async request, then it returns OK.
+        if (request.async) {
+            return ORBIS_OK;
+        }
+        return ORBIS_NP_ERROR_SIGNED_OUT;
+    }
+
+    LOG_ERROR("(STUBBED) called, req_id = '{}', async = '{}'", req_id, request.async);
+
+    std::memcpy(auth_code, g_dummy_auth_code, sizeof(OrbisNpAuthorizationCode));
+    // Not sure about the fifth argument
+    *issuer_id = std::strlen(g_dummy_auth_code);
+
+    LOG_ERROR("GetAuthCode SUCCESS: Returning Token: '{}', IssuerID: '{}'", g_dummy_auth_code,
+              *issuer_id);
+
+    return ORBIS_OK;
+}
 
 s32 CreateNpRequest(bool async) {
     if (g_active_requests == ORBIS_NP_MANAGER_REQUEST_LIMIT) {
@@ -157,6 +254,218 @@ HOOK_INIT(sceNpGetState);
 HOOK_INIT(sceNpHasSignedUp);
 HOOK_INIT(sceNpCheckCallback);
 HOOK_INIT(sceNpCheckCallbackForLib);
+HOOK_INIT(sceNpAuthGetAuthorizationCode);
+HOOK_INIT(sceNpAuthGetAuthorizationCodeA);
+// HOOK_INIT(sceNpAuthGetAuthorizationCodeV3);
+HOOK_INIT(sceNpWebApiCreateRequest);
+// HOOK_INIT(sceNpManagerIntGetSigninState);
+// HOOK_INIT(sceNpManagerIntIsSubAccount);
+HOOK_INIT(sceNpWebApiSendRequest);
+HOOK_INIT(sceNpWebApiGetHttpStatusCode);
+HOOK_INIT(sceNpWebApiReadData);
+HOOK_INIT(sceNpWebApiDeleteRequest);
+
+s32 PS4_SYSV_ABI sceNpWebApiSendRequest_hook(s32 title_user_ctx_id, s64 request_id) {
+    LOG_ERROR("(STUBBED) SendRequest called for ID: '{}'", request_id);
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI sceNpWebApiGetHttpStatusCode_hook(s64 request_id, s32* out_status_code) {
+    LOG_ERROR("(STUBBED) called, request_id: '{}'", request_id);
+
+    if (out_status_code == nullptr) {
+        return ORBIS_NP_WEB_API_INVALID_ARGUMENT;
+    }
+
+    std::lock_guard<std::mutex> lock(get_mrequests_mutex());
+    auto& requests = get_mrequests();
+
+    if (requests.find(request_id) != requests.end()) {
+        *out_status_code = 200;
+        LOG_ERROR("GetHttpStatusCode: Found ID '{}', returning 200 OK", request_id);
+    } else {
+        LOG_ERROR("GetHttpStatusCode: ID '{}' NOT FOUND returning 200 OK", request_id);
+    }
+
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI sceNpWebApiReadData_hook(s64 request_id, char* data, u64 size) {
+    LOG_ERROR("(STUBBED) called, request_id: '{}'", request_id);
+
+    if (data == nullptr || size == 0) {
+        return ORBIS_OK;
+    }
+
+    std::lock_guard<std::mutex> lock(get_mrequests_mutex());
+    auto& requests = get_mrequests();
+    auto& templates = get_templates();
+
+    auto it = requests.find(request_id);
+    if (it != requests.end()) {
+        auto template_it = templates.find(it->second);
+        if (template_it != templates.end()) {
+            const std::string& response = template_it->second;
+
+            u64 to_copy = (size < (u64)response.size()) ? size : (u64)response.size();
+
+            memcpy(data, response.data(), to_copy);
+
+            LOG_ERROR("ReadData: ID '{}' Type '{}' copying '{}' bytes to app.", request_id,
+                      (int)it->second, to_copy);
+            LOG_ERROR("JSON Body: {}", response);
+
+            return static_cast<s32>(to_copy);
+        }
+    }
+
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI sceNpWebApiDeleteRequest_hook(s64 request_id) {
+    LOG_ERROR("(STUBBED) called, request_id: '{}'", request_id);
+
+    std::lock_guard<std::mutex> lock(get_mrequests_mutex());
+    auto& requests = get_mrequests();
+
+    auto it = requests.find(request_id);
+    if (it != requests.end()) {
+        requests.erase(it);
+        LOG_ERROR("Deleted request ID '{}' from map", request_id);
+    }
+
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI sceNpManagerIntGetSigninState_hook(int retSignin) {
+    LOG_ERROR("INT GET SIGNIN STATE WAS CALLED! RETURNING OK");
+    retSignin = 1;
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI sceNpManagerIntIsSubAccount_hook(bool SubAccount) {
+    LOG_ERROR("INT IS SUB ACCOUNT WAS CALLED! RETURNING OK");
+    SubAccount = true;
+
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI sceNpWebApiCreateRequest_hook(s32 title_user_ctx_id, const char* p_api_group,
+                                               const char* p_path, s32 method,
+                                               SceNpWebApiContentParameter* p_content_parameter,
+                                               s64* p_request_id) {
+    LOG_ERROR("WEB API CALLED!");
+
+    if (p_path == nullptr) {
+        return ORBIS_NP_WEB_API_INVALID_ARGUMENT;
+    }
+
+    if (p_content_parameter != nullptr) {
+        const char* c_type =
+            p_content_parameter->p_content_type ? p_content_parameter->p_content_type : "UNKNOWN";
+        uint64_t c_len = p_content_parameter->content_length;
+
+        LOG_ERROR("WEB API CONTENT: Type: %s, Length: %llu", c_type, (unsigned long long)c_len);
+    } else {
+        LOG_ERROR("NO CONTENT PARAMETER PROVIDED");
+    }
+
+    LOG_ERROR("P PATH ISN'T NULL");
+
+    static s64 request_id_counter = 0;
+    s64 request_id = request_id_counter++;
+
+    LOG_ERROR("REQUEST ID ASSIGNED");
+
+    *p_request_id = request_id;
+
+    SceNpWebApiMockRequestType type = REQ_INVALID;
+
+    std::lock_guard<std::mutex> lock(get_mrequests_mutex());
+
+    if (strstr(p_path, "blockList") != nullptr) {
+        type = REQ_BLOCK_LIST;
+    } else if (strstr(p_path, "friendList") != nullptr) {
+        type = REQ_FRIEND_LIST;
+    }
+
+    if (type == REQ_INVALID) {
+
+        LOG_ERROR("No mock for request path: '{}'", p_path);
+        return ORBIS_OK;
+    }
+    LOG_ERROR("STARTING EMPLACE");
+
+    get_mrequests().emplace(request_id, type);
+
+    LOG_ERROR("EMPLACE DONE, RETURNING.");
+
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI sceNpAuthGetAuthorizationCode_hook(
+    s32 req_id, const OrbisNpAuthGetAuthorizationCodeParameter* param,
+    OrbisNpAuthorizationCode* auth_code, s32* issuer_id) {
+
+    LOG_ERROR("GetAuthCode: Called! req_id: '{}'", req_id);
+
+    if (param == nullptr || auth_code == nullptr) {
+        LOG_ERROR("GetAuthCode: Error - Null parameters provided.");
+        return ORBIS_NP_AUTH_ERROR_INVALID_ARGUMENT;
+    }
+
+    if (param->size != sizeof(OrbisNpAuthGetAuthorizationCodeParameter)) {
+        LOG_ERROR("GetAuthCode: Error - Invalid struct size ({} != {})", param->size,
+                  sizeof(OrbisNpAuthGetAuthorizationCodeParameter));
+        return ORBIS_NP_AUTH_ERROR_INVALID_SIZE;
+    }
+
+    if (param->online_id == nullptr || param->client_id == nullptr || param->scope == nullptr) {
+        LOG_ERROR("GetAuthCode: Error - Missing OnlineID, ClientID, or Scope.");
+        return ORBIS_NP_AUTH_ERROR_INVALID_ARGUMENT;
+    }
+
+    if (!g_signed_in) {
+        LOG_WARNING("GetAuthCode: Blocked - User is NOT signed in.");
+        return ORBIS_NP_ERROR_USER_NOT_FOUND;
+    }
+
+    s32 user_id = 0;
+    if (sceUserServiceGetInitialUser(&user_id) != 0) {
+        LOG_ERROR("GetAuthCode: Critical - Failed to get initial user ID.");
+        return ORBIS_NP_ERROR_USER_NOT_FOUND;
+    }
+
+    LOG_INFO("GetAuthCode: Resolving for UserID: '{}', Scope: '{}'", user_id, param->scope);
+
+    OrbisNpAuthGetAuthorizationCodeParameterA internal_params;
+    std::memset(&internal_params, 0, sizeof(internal_params));
+    internal_params.size = sizeof(internal_params);
+    internal_params.client_id = param->client_id;
+    internal_params.user_id = user_id;
+    internal_params.scope = param->scope;
+
+    return GetAuthorizationCode(req_id, &internal_params, 0, auth_code, issuer_id);
+}
+
+s32 PS4_SYSV_ABI sceNpAuthGetAuthorizationCodeA_hook(
+    s32 req_id, const OrbisNpAuthGetAuthorizationCodeParameterA* param,
+    OrbisNpAuthorizationCode* auth_code, s32* issuer_id) {
+    if (param) {
+        LOG_INFO("GetAuthCodeA: Called for UserID: '{}', Scope: '{}'", param->user_id,
+                 param->scope ? param->scope : "NULL");
+    } else {
+        LOG_ERROR("GetAuthCodeA: Called with NULL param!");
+    }
+
+    return GetAuthorizationCode(req_id, param, 0, auth_code, issuer_id);
+}
+
+s32 PS4_SYSV_ABI sceNpAuthGetAuthorizationCodeV3_hook(
+    s32 req_id, const OrbisNpAuthGetAuthorizationCodeParameterA* param,
+    OrbisNpAuthorizationCode* auth_code, s32* issuer_id) {
+    return GetAuthorizationCode(req_id, param, 1, auth_code, issuer_id);
+}
 
 s32 PS4_SYSV_ABI sceNpCreateRequest_hook() {
     LOG_DEBUG("called");
@@ -820,6 +1129,16 @@ s32 attr_public plugin_load(s32 argc, const char* argv[]) {
     HOOK(sceNpHasSignedUp);
     HOOK(sceNpCheckCallback);
     HOOK(sceNpCheckCallbackForLib);
+    HOOK(sceNpAuthGetAuthorizationCode);
+    HOOK(sceNpAuthGetAuthorizationCodeA);
+    // HOOK(sceNpAuthGetAuthorizationCodeV3);
+    HOOK(sceNpWebApiCreateRequest);
+    // HOOK(sceNpManagerIntGetSigninState);
+    // HOOK(sceNpManagerIntIsSubAccount);
+    HOOK(sceNpWebApiSendRequest);
+    HOOK(sceNpWebApiGetHttpStatusCode);
+    HOOK(sceNpWebApiReadData);
+    HOOK(sceNpWebApiDeleteRequest);
     return 0;
 }
 
@@ -856,6 +1175,16 @@ s32 attr_public plugin_unload(s32 argc, const char* argv[]) {
     UNHOOK(sceNpHasSignedUp);
     UNHOOK(sceNpCheckCallback);
     UNHOOK(sceNpCheckCallbackForLib);
+    UNHOOK(sceNpAuthGetAuthorizationCode);
+    UNHOOK(sceNpAuthGetAuthorizationCodeA);
+    // UNHOOK(sceNpAuthGetAuthorizationCodeV3);
+    UNHOOK(sceNpWebApiCreateRequest);
+    // UNHOOK(sceNpManagerIntGetSigninState);
+    // UNHOOK(sceNpManagerIntIsSubAccount);
+    UNHOOK(sceNpWebApiSendRequest);
+    UNHOOK(sceNpWebApiGetHttpStatusCode);
+    UNHOOK(sceNpWebApiReadData);
+    UNHOOK(sceNpWebApiDeleteRequest);
     return 0;
 }
 
