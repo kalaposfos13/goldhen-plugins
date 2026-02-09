@@ -221,7 +221,7 @@ extern "C" {
 
 attr_public const char* g_pluginName = "even faker psn";
 attr_public const char* g_pluginDesc = "";
-attr_public const char* g_pluginAuth = "kalaposfos";
+attr_public const char* g_pluginAuth = "kalaposfos, metr1k";
 attr_public u32 g_pluginVersion = 0x00000100; // 1.00
 char titleid[16];
 
@@ -254,16 +254,107 @@ HOOK_INIT(sceNpGetState);
 HOOK_INIT(sceNpHasSignedUp);
 HOOK_INIT(sceNpCheckCallback);
 HOOK_INIT(sceNpCheckCallbackForLib);
+
 HOOK_INIT(sceNpAuthGetAuthorizationCode);
 HOOK_INIT(sceNpAuthGetAuthorizationCodeA);
 // HOOK_INIT(sceNpAuthGetAuthorizationCodeV3);
+HOOK_INIT(sceNpAuthCreateAsyncRequest);
+HOOK_INIT(sceNpAuthDeleteRequest);
+HOOK_INIT(sceNpAuthPollAsync);
+
+HOOK_INIT(sceNpManagerIntGetSigninState);
+HOOK_INIT(sceNpManagerIntIsSubAccount);
+
 HOOK_INIT(sceNpWebApiCreateRequest);
-// HOOK_INIT(sceNpManagerIntGetSigninState);
-// HOOK_INIT(sceNpManagerIntIsSubAccount);
 HOOK_INIT(sceNpWebApiSendRequest);
 HOOK_INIT(sceNpWebApiGetHttpStatusCode);
 HOOK_INIT(sceNpWebApiReadData);
 HOOK_INIT(sceNpWebApiDeleteRequest);
+
+s32 CreateNpAuthRequest(bool async) {
+    if (g_active_auth_requests == ORBIS_NP_AUTH_REQUEST_LIMIT) {
+        return ORBIS_NP_AUTH_ERROR_REQUEST_MAX;
+    }
+
+    std::scoped_lock lk{g_auth_request_mutex};
+
+    s32 req_index = 0;
+    while (req_index < g_auth_requests.size()) {
+        // Find first nonexistant request
+        if (g_auth_requests[req_index].state == NpAuthRequestState::None) {
+            // There is no request at this index, set the index to ready then break.
+            g_auth_requests[req_index].state = NpAuthRequestState::Ready;
+            g_auth_requests[req_index].async = async;
+            break;
+        }
+        req_index++;
+    }
+
+    if (req_index == g_auth_requests.size()) {
+        // There are no requests to replace.
+        NpAuthRequest new_request{NpAuthRequestState::Ready, async, 0};
+        g_auth_requests.emplace_back(new_request);
+    }
+
+    // Offset by one, first returned ID is 0x10000001
+    g_active_auth_requests++;
+    LOG_INFO("called, async = {}", async);
+    return req_index + ORBIS_NP_AUTH_REQUEST_ID_OFFSET + 1;
+}
+
+s32 PS4_SYSV_ABI sceNpAuthPollAsync_hook(s32 req_id, s32* result) {
+    if (result == nullptr) {
+        return ORBIS_NP_AUTH_ERROR_INVALID_ARGUMENT;
+    }
+
+    std::scoped_lock lk{g_auth_request_mutex};
+
+    s32 req_index = req_id - ORBIS_NP_AUTH_REQUEST_ID_OFFSET - 1;
+    if (g_active_auth_requests == 0 || g_auth_requests.size() <= req_index ||
+        g_auth_requests[req_index].state == NpAuthRequestState::None) {
+        return ORBIS_NP_AUTH_ERROR_REQUEST_NOT_FOUND;
+    }
+
+    if (!g_auth_requests[req_index].async ||
+        g_auth_requests[req_index].state == NpAuthRequestState::Ready) {
+        return ORBIS_NP_AUTH_ERROR_INVALID_ID;
+    }
+
+    // Since we're not actually performing any sort of network request here,
+    // we can just set result based on the request and return.
+    *result = g_auth_requests[req_index].result;
+    LOG_WARNING("called req_id = {:#x}, returning result = {:#x}", req_id,
+                static_cast<u32>(*result));
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI
+sceNpAuthCreateAsyncRequest_hook(const OrbisNpAuthCreateAsyncRequestParameter* param) {
+    if (param == nullptr) {
+        return ORBIS_NP_AUTH_ERROR_INVALID_ARGUMENT;
+    }
+    if (param->size != sizeof(OrbisNpAuthCreateAsyncRequestParameter)) {
+        return ORBIS_NP_AUTH_ERROR_INVALID_SIZE;
+    }
+
+    return CreateNpAuthRequest(true);
+}
+
+s32 PS4_SYSV_ABI sceNpAuthDeleteRequest_hook(s32 req_id) {
+    LOG_DEBUG(Lib_NpAuth, "called req_id = {:#x}", req_id);
+
+    std::scoped_lock lk{g_auth_request_mutex};
+
+    s32 req_index = req_id - ORBIS_NP_AUTH_REQUEST_ID_OFFSET - 1;
+    if (g_active_auth_requests == 0 || g_auth_requests.size() <= req_index ||
+        g_auth_requests[req_index].state == NpAuthRequestState::None) {
+        return ORBIS_NP_AUTH_ERROR_REQUEST_NOT_FOUND;
+    }
+
+    g_active_auth_requests--;
+    g_auth_requests[req_index].state = NpAuthRequestState::None;
+    return ORBIS_OK;
+}
 
 s32 PS4_SYSV_ABI sceNpWebApiSendRequest_hook(s32 title_user_ctx_id, s64 request_id) {
     LOG_ERROR("(STUBBED) SendRequest called for ID: '{}'", request_id);
@@ -1132,9 +1223,12 @@ s32 attr_public plugin_load(s32 argc, const char* argv[]) {
     HOOK(sceNpAuthGetAuthorizationCode);
     HOOK(sceNpAuthGetAuthorizationCodeA);
     // HOOK(sceNpAuthGetAuthorizationCodeV3);
+    HOOK(sceNpManagerIntGetSigninState);
+    HOOK(sceNpManagerIntIsSubAccount);
+    HOOK(sceNpAuthCreateAsyncRequest);
+    HOOK(sceNpAuthDeleteRequest);
+    HOOK(sceNpAuthPollAsync);
     HOOK(sceNpWebApiCreateRequest);
-    // HOOK(sceNpManagerIntGetSigninState);
-    // HOOK(sceNpManagerIntIsSubAccount);
     HOOK(sceNpWebApiSendRequest);
     HOOK(sceNpWebApiGetHttpStatusCode);
     HOOK(sceNpWebApiReadData);
@@ -1178,9 +1272,12 @@ s32 attr_public plugin_unload(s32 argc, const char* argv[]) {
     UNHOOK(sceNpAuthGetAuthorizationCode);
     UNHOOK(sceNpAuthGetAuthorizationCodeA);
     // UNHOOK(sceNpAuthGetAuthorizationCodeV3);
+    UNHOOK(sceNpAuthCreateAsyncRequest);
+    UNHOOK(sceNpAuthDeleteRequest);
+    UNHOOK(sceNpAuthPollAsync);
+    UNHOOK(sceNpManagerIntGetSigninState);
+    UNHOOK(sceNpManagerIntIsSubAccount);
     UNHOOK(sceNpWebApiCreateRequest);
-    // UNHOOK(sceNpManagerIntGetSigninState);
-    // UNHOOK(sceNpManagerIntIsSubAccount);
     UNHOOK(sceNpWebApiSendRequest);
     UNHOOK(sceNpWebApiGetHttpStatusCode);
     UNHOOK(sceNpWebApiReadData);

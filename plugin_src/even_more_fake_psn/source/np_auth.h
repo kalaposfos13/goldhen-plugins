@@ -52,10 +52,11 @@ struct OrbisNpAuthGetIdTokenParameterA {
 
 
 extern "C" {
-void sceNpAuthGetAuthorizationCode();
-
-void sceNpAuthGetAuthorizationCodeA();
-
-void sceNpAuthGetAuthorizationCodeV3();
+s32 sceNpAuthGetAuthorizationCode();
+s32 sceNpAuthGetAuthorizationCodeA();
+// s32 sceNpAuthGetAuthorizationCodeV3();
+s32 sceNpAuthCreateAsyncRequest();
+s32 sceNpAuthDeleteRequest();
+s32 sceNpAuthPollAsync();
 }
  
