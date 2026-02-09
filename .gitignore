@@ -43,3 +43,6 @@ bin/*
 
 # Version file
 common/git_ver.h
+
+*.patch
+.vscode
