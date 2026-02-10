@@ -271,6 +271,16 @@ HOOK_INIT(sceNpWebApiGetHttpStatusCode);
 HOOK_INIT(sceNpWebApiReadData);
 HOOK_INIT(sceNpWebApiDeleteRequest);
 
+HOOK_INIT(sceHttpsDisableOption);
+
+
+
+
+int PS4_SYSV_ABI sceHttpsDisableOption_hook() {
+    LOG_ERROR("HTTPS Disable called, returning zero to '{}'", __builtin_return_address(0));
+    return ORBIS_OK;
+}
+
 s32 CreateNpAuthRequest(bool async) {
     if (g_active_auth_requests == ORBIS_NP_AUTH_REQUEST_LIMIT) {
         return ORBIS_NP_AUTH_ERROR_REQUEST_MAX;
@@ -1233,6 +1243,7 @@ s32 attr_public plugin_load(s32 argc, const char* argv[]) {
     HOOK(sceNpWebApiGetHttpStatusCode);
     HOOK(sceNpWebApiReadData);
     HOOK(sceNpWebApiDeleteRequest);
+    HOOK(sceHttpsDisableOption);
     return 0;
 }
 
@@ -1282,6 +1293,7 @@ s32 attr_public plugin_unload(s32 argc, const char* argv[]) {
     UNHOOK(sceNpWebApiGetHttpStatusCode);
     UNHOOK(sceNpWebApiReadData);
     UNHOOK(sceNpWebApiDeleteRequest);
+    UNHOOK(sceHttpsDisableOption);
     return 0;
 }
 
