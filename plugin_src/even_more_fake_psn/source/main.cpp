@@ -24,6 +24,11 @@
 #include "np_manager.h"
 #include "np_types.h"
 #include "np_web_api.h"
+#include "np_score.h"
+
+#include "ssl.h"
+
+#include "np_signaling.h"
 
 using namespace Libraries::Np::NpManager;
 // using namespace Libraries::Np;
@@ -135,15 +140,95 @@ static std::mutex& get_mrequests_mutex() {
     return instance;
 }
 
+
+
+const char *RedirectURL = "http://bbnet.yahargul.info:20443";
+
+extern "C" {
+
+attr_public const char* g_pluginName = "even faker psn";
+attr_public const char* g_pluginDesc = "";
+attr_public const char* g_pluginAuth = "kalaposfos, metr1k";
+attr_public u32 g_pluginVersion = 0x00000100; // 1.00
+char titleid[16];
+
+HOOK_INIT(sceNpCreateRequest);
+HOOK_INIT(sceNpCreateAsyncRequest);
+HOOK_INIT(sceNpCheckNpAvailability);
+HOOK_INIT(sceNpCheckNpAvailabilityA);
+HOOK_INIT(sceNpCheckNpReachability);
+HOOK_INIT(sceNpCheckPlus);
+HOOK_INIT(sceNpGetAccountLanguage);
+HOOK_INIT(sceNpGetAccountLanguageA);
+HOOK_INIT(sceNpGetParentalControlInfo);
+HOOK_INIT(sceNpGetParentalControlInfoA);
+HOOK_INIT(sceNpAbortRequest);
+HOOK_INIT(sceNpWaitAsync);
+HOOK_INIT(sceNpPollAsync);
+HOOK_INIT(sceNpDeleteRequest);
+HOOK_INIT(sceNpGetAccountCountry);
+HOOK_INIT(sceNpGetAccountCountryA);
+HOOK_INIT(sceNpGetAccountDateOfBirth);
+HOOK_INIT(sceNpGetAccountDateOfBirthA);
+HOOK_INIT(sceNpGetGamePresenceStatus);
+HOOK_INIT(sceNpGetGamePresenceStatusA);
+HOOK_INIT(sceNpGetAccountId);
+HOOK_INIT(sceNpGetAccountIdA);
+HOOK_INIT(sceNpGetNpId);
+HOOK_INIT(sceNpGetOnlineId);
+HOOK_INIT(sceNpGetNpReachabilityState);
+HOOK_INIT(sceNpGetState);
+HOOK_INIT(sceNpHasSignedUp);
+HOOK_INIT(sceNpCheckCallback);
+HOOK_INIT(sceNpCheckCallbackForLib);
+HOOK_INIT(sceNpSetContentRestriction);
+
+
+HOOK_INIT(sceNpAuthGetAuthorizationCode);
+HOOK_INIT(sceNpAuthGetAuthorizationCodeA);
+// HOOK_INIT(sceNpAuthGetAuthorizationCodeV3);
+HOOK_INIT(sceNpAuthCreateAsyncRequest);
+HOOK_INIT(sceNpAuthCreateRequest);
+HOOK_INIT(sceNpAuthDeleteRequest);
+HOOK_INIT(sceNpAuthPollAsync);
+
+HOOK_INIT(sceNpManagerIntGetSigninState);
+HOOK_INIT(sceNpManagerIntIsSubAccount);
+
+HOOK_INIT(sceNpWebApiCreateRequest);
+HOOK_INIT(sceNpWebApiSendRequest);
+HOOK_INIT(sceNpWebApiGetHttpStatusCode);
+HOOK_INIT(sceNpWebApiReadData);
+HOOK_INIT(sceNpWebApiDeleteRequest);
+
+HOOK_INIT(sceHttpsDisableOption);
+HOOK_INIT(sceHttpsEnableOption);
+HOOK_INIT(sceHttpCreateConnectionWithURL);
+HOOK_INIT(sceHttpCreateRequestWithURL);
+
+HOOK_INIT(sceSslInit);
+
+
+HOOK_INIT(sceNpSignalingInitialize);
+
+
+HOOK_INIT(sceNpScoreCreateNpTitleCtx);
+
+
 s32 GetAuthorizationCode(s32 req_id, const OrbisNpAuthGetAuthorizationCodeParameterA* param,
                          s32 flag, OrbisNpAuthorizationCode* auth_code, s32* issuer_id) {
+
+    LOG_ERROR("GETAUTHLOOP CALLED");
     if (param == nullptr || auth_code == nullptr) {
+        LOG_ERROR("PARAM OR AUTH WAS NULL");
         return ORBIS_NP_AUTH_ERROR_INVALID_ARGUMENT;
     }
     if (param->size != sizeof(OrbisNpAuthGetAuthorizationCodeParameter)) {
+        LOG_ERROR("PARAM SIZE MISMATCH");
         return ORBIS_NP_AUTH_ERROR_INVALID_SIZE;
     }
     if (param->user_id == -1 || param->client_id == nullptr || param->scope == nullptr) {
+        LOG_ERROR("USER ID, CLIENT ID, OR SCOPE ARE INCORRECT OR NULL");
         return ORBIS_NP_AUTH_ERROR_INVALID_ARGUMENT;
     }
 
@@ -153,21 +238,25 @@ s32 GetAuthorizationCode(s32 req_id, const OrbisNpAuthGetAuthorizationCodeParame
     s32 req_index = req_id - ORBIS_NP_AUTH_REQUEST_ID_OFFSET - 1;
     if (g_active_auth_requests == 0 || g_auth_requests.size() <= req_index ||
         g_auth_requests[req_index].state == NpAuthRequestState::None) {
+        LOG_ERROR("NO REQUEST FOUND");
         return ORBIS_NP_AUTH_ERROR_REQUEST_NOT_FOUND;
     }
 
     auto& request = g_auth_requests[req_index];
     if (request.state == NpAuthRequestState::Complete) {
         request.result = ORBIS_NP_AUTH_ERROR_INVALID_ARGUMENT;
+        LOG_ERROR("INVALID AUTH ARGUMENT");
         return ORBIS_NP_AUTH_ERROR_INVALID_ARGUMENT;
     } else if (request.state == NpAuthRequestState::Aborted) {
         request.result = ORBIS_NP_AUTH_ERROR_ABORTED;
+        LOG_ERROR("REQUEST ABORTED");
         return ORBIS_NP_AUTH_ERROR_ABORTED;
     }
 
     request.state = NpAuthRequestState::Complete;
     if (!g_signed_in) {
         request.result = ORBIS_NP_ERROR_SIGNED_OUT;
+        LOG_ERROR("NOT SIGNED IN");
         // If the request is processed in some form, and it's an async request, then it returns OK.
         if (request.async) {
             return ORBIS_OK;
@@ -217,77 +306,15 @@ s32 CreateNpRequest(bool async) {
     return req_index + ORBIS_NP_MANAGER_REQUEST_ID_OFFSET + 1;
 }
 
-extern "C" {
-
-attr_public const char* g_pluginName = "even faker psn";
-attr_public const char* g_pluginDesc = "";
-attr_public const char* g_pluginAuth = "kalaposfos, metr1k";
-attr_public u32 g_pluginVersion = 0x00000100; // 1.00
-char titleid[16];
-
-HOOK_INIT(sceNpCreateRequest);
-HOOK_INIT(sceNpCreateAsyncRequest);
-HOOK_INIT(sceNpCheckNpAvailability);
-HOOK_INIT(sceNpCheckNpAvailabilityA);
-HOOK_INIT(sceNpCheckNpReachability);
-HOOK_INIT(sceNpCheckPlus);
-HOOK_INIT(sceNpGetAccountLanguage);
-HOOK_INIT(sceNpGetAccountLanguageA);
-HOOK_INIT(sceNpGetParentalControlInfo);
-HOOK_INIT(sceNpGetParentalControlInfoA);
-HOOK_INIT(sceNpAbortRequest);
-HOOK_INIT(sceNpWaitAsync);
-HOOK_INIT(sceNpPollAsync);
-HOOK_INIT(sceNpDeleteRequest);
-HOOK_INIT(sceNpGetAccountCountry);
-HOOK_INIT(sceNpGetAccountCountryA);
-HOOK_INIT(sceNpGetAccountDateOfBirth);
-HOOK_INIT(sceNpGetAccountDateOfBirthA);
-HOOK_INIT(sceNpGetGamePresenceStatus);
-HOOK_INIT(sceNpGetGamePresenceStatusA);
-HOOK_INIT(sceNpGetAccountId);
-HOOK_INIT(sceNpGetAccountIdA);
-HOOK_INIT(sceNpGetNpId);
-HOOK_INIT(sceNpGetOnlineId);
-HOOK_INIT(sceNpGetNpReachabilityState);
-HOOK_INIT(sceNpGetState);
-HOOK_INIT(sceNpHasSignedUp);
-HOOK_INIT(sceNpCheckCallback);
-HOOK_INIT(sceNpCheckCallbackForLib);
-
-HOOK_INIT(sceNpAuthGetAuthorizationCode);
-HOOK_INIT(sceNpAuthGetAuthorizationCodeA);
-// HOOK_INIT(sceNpAuthGetAuthorizationCodeV3);
-HOOK_INIT(sceNpAuthCreateAsyncRequest);
-HOOK_INIT(sceNpAuthDeleteRequest);
-HOOK_INIT(sceNpAuthPollAsync);
-
-HOOK_INIT(sceNpManagerIntGetSigninState);
-HOOK_INIT(sceNpManagerIntIsSubAccount);
-
-HOOK_INIT(sceNpWebApiCreateRequest);
-HOOK_INIT(sceNpWebApiSendRequest);
-HOOK_INIT(sceNpWebApiGetHttpStatusCode);
-HOOK_INIT(sceNpWebApiReadData);
-HOOK_INIT(sceNpWebApiDeleteRequest);
-
-HOOK_INIT(sceHttpsDisableOption);
-
-
-
-
-int PS4_SYSV_ABI sceHttpsDisableOption_hook() {
-    LOG_ERROR("HTTPS Disable called, returning zero to '{}'", __builtin_return_address(0));
-    return ORBIS_OK;
-}
-
 s32 CreateNpAuthRequest(bool async) {
+    LOG_ERROR("CREATE NPAUTH REQUEST MADE!");
+
     if (g_active_auth_requests == ORBIS_NP_AUTH_REQUEST_LIMIT) {
         return ORBIS_NP_AUTH_ERROR_REQUEST_MAX;
     }
-
+    LOG_ERROR("NOT AT NPAUTH LIMIT!");
     std::scoped_lock lk{g_auth_request_mutex};
-
+    LOG_ERROR("NPAUTH ADDING TO INDEX!");
     s32 req_index = 0;
     while (req_index < g_auth_requests.size()) {
         // Find first nonexistant request
@@ -304,16 +331,144 @@ s32 CreateNpAuthRequest(bool async) {
         // There are no requests to replace.
         NpAuthRequest new_request{NpAuthRequestState::Ready, async, 0};
         g_auth_requests.emplace_back(new_request);
+        LOG_ERROR("REQUEST ADDED NPAUTH");
     }
 
     // Offset by one, first returned ID is 0x10000001
     g_active_auth_requests++;
-    LOG_INFO("called, async = {}", async);
+    LOG_ERROR("called, async = {}", async);
     return req_index + ORBIS_NP_AUTH_REQUEST_ID_OFFSET + 1;
 }
 
+
+const char *extract_path(const char *url) {
+    if (!url) return NULL;
+    const char *start = strstr(url, "://");
+    if (!start) return NULL;
+    start += 3;
+    const char *path = strchr(start, '/');
+    return path ? path : "";
+}
+
+char *GetUrltoRedirect(const char *url) {
+    if (!url) return NULL;
+
+    if (strstr(url, "ss4.scej-network.jp") != NULL || 
+        strstr(url, "bb.scej-network.jp") != NULL )
+    {
+        const char *Path = extract_path(url);
+        if (!Path) return NULL;
+
+        size_t newUrlSize = strlen(RedirectURL) + strlen(Path) + 1;
+        char *newRedirectUrl = (char *)malloc(newUrlSize);
+        if (!newRedirectUrl) return NULL;
+
+        strcpy(newRedirectUrl, RedirectURL);
+        strcat(newRedirectUrl, Path);
+        return newRedirectUrl; 
+    }
+
+    return NULL;
+}
+
+int PS4_SYSV_ABI sceNpScoreCreateNpTitleCtx_hook() {
+    LOG_ERROR("(STUBBED) called");
+
+    static s32 title_ctx_id_counter = 0;
+    s32 title_ctx_id = title_ctx_id_counter++;
+
+    return title_ctx_id;
+}
+
+s32 PS4_SYSV_ABI sceNpAuthCreateRequest_hook() {
+    LOG_ERROR("NPAUTH CREATE REQUEST called");
+    return CreateNpAuthRequest(false);
+}
+
+
+s32 PS4_SYSV_ABI sceNpSignalingInitialize_hook() {
+    LOG_ERROR("(STUBBED) called");
+    return ORBIS_OK;
+}
+
+int PS4_SYSV_ABI sceSslInit_hook(std::size_t poolSize) {
+    LOG_ERROR("(DUMMY) called poolSize = {}", poolSize);
+    // return a value >1
+    static int id = 0;
+    return ++id;
+}
+
+
+int32_t sceNpSetContentRestriction_hook() {
+
+LOG_ERROR("NPSETCONTENTRESTRICTION called, returning zero to '{}'", __builtin_return_address(0));
+
+return 0;
+}
+
+
+int32_t sceHttpCreateRequestWithURL_hook(int32_t conectId, int32_t method, const char *url, uint64_t contentLength) {
+    //This will likely be temporary, the change to eboot most likely will make this unnecessary, but it is here for logging purposes.
+    
+    char * newRedirectUrl = GetUrltoRedirect(url);
+    LOG_ERROR("sceHttp::sceHttpCreateRequestWithURL->Url: '{}'", url);
+
+    if (newRedirectUrl) {       
+        LOG_ERROR("Redirecting CreateRequest URL:");
+        LOG_ERROR("Original: '{}'", url);
+        LOG_ERROR("Redirected: '{}'", newRedirectUrl);
+        
+        int32_t result = HOOK_CONTINUE(sceHttpCreateRequestWithURL, 
+            int32_t(*)(int32_t, int32_t, const char *, uint64_t), conectId, method, newRedirectUrl, contentLength);
+        
+        free(newRedirectUrl);
+        return result;
+    } 
+    
+    return HOOK_CONTINUE(sceHttpCreateRequestWithURL, 
+        int32_t(*)(int32_t, int32_t, const char *, uint64_t), 
+        conectId, method, url, contentLength);
+}
+
+int32_t sceHttpCreateConnectionWithURL_hook(int32_t templateId, const char *url, bool isKeepalive) {
+    char * newRedirectUrl = GetUrltoRedirect(url);
+    // This will likely be temporary, the change to eboot most likely will make this unnecessary,
+    // but it is here for logging purposes.
+    if (newRedirectUrl) {
+        
+        LOG_ERROR("Redirecting CreateConnection URL:");
+        LOG_ERROR("Original: '{}'", url);
+        LOG_ERROR("Redirected: '{}'", newRedirectUrl);
+        
+        int32_t result = HOOK_CONTINUE(sceHttpCreateConnectionWithURL, 
+            int32_t(*)(int32_t, const char *, bool), 
+            templateId, newRedirectUrl, isKeepalive);
+        
+        free(newRedirectUrl);
+        return result;
+    }
+
+    return HOOK_CONTINUE(sceHttpCreateConnectionWithURL, 
+        int32_t(*)(int32_t, const char *, bool), 
+        templateId, url, isKeepalive);
+}
+
+int PS4_SYSV_ABI sceHttpsEnableOption_hook(u32 options) {
+    LOG_ERROR("HTTPS Enable called, returning zero to {}", __builtin_return_address(0));
+    return ORBIS_OK;
+}
+
+int PS4_SYSV_ABI sceHttpsDisableOption_hook() {
+    LOG_ERROR("HTTPS Disable called, returning zero to '{}'", __builtin_return_address(0));
+    return ORBIS_OK;
+}
+
+
+
 s32 PS4_SYSV_ABI sceNpAuthPollAsync_hook(s32 req_id, s32* result) {
-    if (result == nullptr) {
+    LOG_ERROR("ASYNC AUTH POLL CALLED");
+	
+	if (result == nullptr) {
         return ORBIS_NP_AUTH_ERROR_INVALID_ARGUMENT;
     }
 
@@ -333,17 +488,19 @@ s32 PS4_SYSV_ABI sceNpAuthPollAsync_hook(s32 req_id, s32* result) {
     // Since we're not actually performing any sort of network request here,
     // we can just set result based on the request and return.
     *result = g_auth_requests[req_index].result;
-    LOG_WARNING("called req_id = {:#x}, returning result = {:#x}", req_id,
-                static_cast<u32>(*result));
+    LOG_ERROR("called req_id = '{}', returning result = '{}'", req_id, static_cast<u32>(*result));
     return ORBIS_OK;
 }
 
-s32 PS4_SYSV_ABI
-sceNpAuthCreateAsyncRequest_hook(const OrbisNpAuthCreateAsyncRequestParameter* param) {
+s32 PS4_SYSV_ABI sceNpAuthCreateAsyncRequest_hook(const OrbisNpAuthCreateAsyncRequestParameter* param) {
+	LOG_ERROR("AUTH CREATE ASYNC REQUEST MADE!");
     if (param == nullptr) {
+        LOG_ERROR("PARAMETER WAS NULL");
         return ORBIS_NP_AUTH_ERROR_INVALID_ARGUMENT;
+
     }
     if (param->size != sizeof(OrbisNpAuthCreateAsyncRequestParameter)) {
+        LOG_ERROR("PARAMETER SIZE MISMATCH");
         return ORBIS_NP_AUTH_ERROR_INVALID_SIZE;
     }
 
@@ -351,7 +508,7 @@ sceNpAuthCreateAsyncRequest_hook(const OrbisNpAuthCreateAsyncRequestParameter* p
 }
 
 s32 PS4_SYSV_ABI sceNpAuthDeleteRequest_hook(s32 req_id) {
-    LOG_DEBUG(Lib_NpAuth, "called req_id = {:#x}", req_id);
+    LOG_ERROR("called req_id = '{}'", req_id);
 
     std::scoped_lock lk{g_auth_request_mutex};
 
@@ -1182,13 +1339,13 @@ s32 PS4_SYSV_ABI sceNpCheckCallbackForLib_hook() {
     return ORBIS_OK;
 }
 
-HOOK_INIT(sceHttpCreateRequestWithURL);
-s32 sceHttpCreateRequestWithURL_hook(s32 tmpl_id, s32 method, const char* url, u64 content_length) {
-    std::string new_url = ReplaceHost(std::string(url));
-    LOG_INFO("Replaced {} with {} 1", url, new_url);
-    return HOOK_CONTINUE(sceHttpCreateRequestWithURL, s32 (*)(s32, s32, const char*, u64), tmpl_id,
-                         method, new_url.c_str(), content_length);
-}
+//HOOK_INIT(sceHttpCreateRequestWithURL);
+//s32 sceHttpCreateRequestWithURL_hook(s32 tmpl_id, s32 method, const char* url, u64 content_length) {
+//    std::string new_url = ReplaceHost(std::string(url));
+//    LOG_INFO("Replaced {} with {} 1", url, new_url);
+//    return HOOK_CONTINUE(sceHttpCreateRequestWithURL, s32 (*)(s32, s32, const char*, u64), tmpl_id,
+//                         method, new_url.c_str(), content_length);
+//}
 
 s32 attr_public plugin_load(s32 argc, const char* argv[]) {
     final_printf("[GoldHEN] <%s\\Ver.0x%08x> %s\n", g_pluginName, g_pluginVersion, __func__);
@@ -1199,7 +1356,7 @@ s32 attr_public plugin_load(s32 argc, const char* argv[]) {
         memcpy(titleid, procInfo.titleid, sizeof(titleid));
         print_proc_info();
     }
-    // HOOK(sceHttpCreateRequestWithURL);
+    
 
     HOOK(sceNpCreateRequest);
     HOOK(sceNpCreateAsyncRequest);
@@ -1230,11 +1387,13 @@ s32 attr_public plugin_load(s32 argc, const char* argv[]) {
     HOOK(sceNpHasSignedUp);
     HOOK(sceNpCheckCallback);
     HOOK(sceNpCheckCallbackForLib);
+    HOOK(sceNpSetContentRestriction);
     HOOK(sceNpAuthGetAuthorizationCode);
     HOOK(sceNpAuthGetAuthorizationCodeA);
     // HOOK(sceNpAuthGetAuthorizationCodeV3);
     HOOK(sceNpManagerIntGetSigninState);
     HOOK(sceNpManagerIntIsSubAccount);
+    HOOK(sceNpAuthCreateRequest);
     HOOK(sceNpAuthCreateAsyncRequest);
     HOOK(sceNpAuthDeleteRequest);
     HOOK(sceNpAuthPollAsync);
@@ -1243,13 +1402,19 @@ s32 attr_public plugin_load(s32 argc, const char* argv[]) {
     HOOK(sceNpWebApiGetHttpStatusCode);
     HOOK(sceNpWebApiReadData);
     HOOK(sceNpWebApiDeleteRequest);
+    HOOK(sceHttpsEnableOption);
     HOOK(sceHttpsDisableOption);
+	HOOK(sceHttpCreateConnectionWithURL);
+	HOOK(sceHttpCreateRequestWithURL);
+    HOOK(sceSslInit);
+    HOOK(sceNpSignalingInitialize);
+    HOOK(sceNpScoreCreateNpTitleCtx);
     return 0;
 }
 
 s32 attr_public plugin_unload(s32 argc, const char* argv[]) {
     final_printf("[GoldHEN] <%s\\Ver.0x%08x> %s\n", g_pluginName, g_pluginVersion, __func__);
-    // UNHOOK(sceHttpCreateRequestWithURL);
+    
 
     UNHOOK(sceNpCreateRequest);
     UNHOOK(sceNpCreateAsyncRequest);
@@ -1280,10 +1445,12 @@ s32 attr_public plugin_unload(s32 argc, const char* argv[]) {
     UNHOOK(sceNpHasSignedUp);
     UNHOOK(sceNpCheckCallback);
     UNHOOK(sceNpCheckCallbackForLib);
+    UNHOOK(sceNpSetContentRestriction);
     UNHOOK(sceNpAuthGetAuthorizationCode);
     UNHOOK(sceNpAuthGetAuthorizationCodeA);
     // UNHOOK(sceNpAuthGetAuthorizationCodeV3);
     UNHOOK(sceNpAuthCreateAsyncRequest);
+    UNHOOK(sceNpAuthCreateRequest);
     UNHOOK(sceNpAuthDeleteRequest);
     UNHOOK(sceNpAuthPollAsync);
     UNHOOK(sceNpManagerIntGetSigninState);
@@ -1293,7 +1460,13 @@ s32 attr_public plugin_unload(s32 argc, const char* argv[]) {
     UNHOOK(sceNpWebApiGetHttpStatusCode);
     UNHOOK(sceNpWebApiReadData);
     UNHOOK(sceNpWebApiDeleteRequest);
+    UNHOOK(sceHttpsEnableOption);
     UNHOOK(sceHttpsDisableOption);
+	UNHOOK(sceHttpCreateConnectionWithURL);
+	UNHOOK(sceHttpCreateRequestWithURL);
+    UNHOOK(sceSslInit);
+    UNHOOK(sceNpSignalingInitialize);
+    UNHOOK(sceNpScoreCreateNpTitleCtx);
     return 0;
 }
 

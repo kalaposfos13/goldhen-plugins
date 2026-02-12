@@ -1,0 +1,45 @@
+[Homebrew] ../even_more_fake_psn/source/main.cpp:410 <Error> sceNpSetContentRestriction_hook: NPSETCONTENTRESTRICTION called, returning zero to '0x23b7054'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:401 <Error> sceSslInit_hook: (DUMMY) called poolSize = 311296
+[Homebrew] ../even_more_fake_psn/source/main.cpp:463 <Error> sceHttpsEnableOption_hook: HTTPS Enable called, returning zero to 0x227dae3
+[Homebrew] ../even_more_fake_psn/source/main.cpp:621 <Error> sceNpWebApiCreateRequest_hook: WEB API CALLED!
+[Homebrew] ../even_more_fake_psn/source/main.cpp:634 <Error> sceNpWebApiCreateRequest_hook: NO CONTENT PARAMETER PROVIDED
+[Homebrew] ../even_more_fake_psn/source/main.cpp:637 <Error> sceNpWebApiCreateRequest_hook: P PATH ISN'T NULL
+[Homebrew] ../even_more_fake_psn/source/main.cpp:642 <Error> sceNpWebApiCreateRequest_hook: REQUEST ID ASSIGNED
+[Homebrew] ../even_more_fake_psn/source/main.cpp:661 <Error> sceNpWebApiCreateRequest_hook: STARTING EMPLACE
+[Homebrew] ../even_more_fake_psn/source/main.cpp:665 <Error> sceNpWebApiCreateRequest_hook: EMPLACE DONE, RETURNING.
+[Homebrew] ../even_more_fake_psn/source/main.cpp:533 <Error> sceNpWebApiSendRequest_hook: (STUBBED) SendRequest called for ID: '0'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:538 <Error> sceNpWebApiGetHttpStatusCode_hook: (STUBBED) called, request_id: '0'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:549 <Error> sceNpWebApiGetHttpStatusCode_hook: GetHttpStatusCode: Found ID '0', returning 200 OK
+[Homebrew] ../even_more_fake_psn/source/main.cpp:558 <Error> sceNpWebApiReadData_hook: (STUBBED) called, request_id: '0'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:579 <Error> sceNpWebApiReadData_hook: ReadData: ID '0' Type '110' copying '36' bytes to app.
+[Homebrew] ../even_more_fake_psn/source/main.cpp:580 <Error> sceNpWebApiReadData_hook: JSON Body: {"totalResults": 0, "blockList": []}
+[Homebrew] ../even_more_fake_psn/source/main.cpp:590 <Error> sceNpWebApiDeleteRequest_hook: (STUBBED) called, request_id: '0'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:598 <Error> sceNpWebApiDeleteRequest_hook: Deleted request ID '0' from map
+[Homebrew] ../even_more_fake_psn/source/main.cpp:621 <Error> sceNpWebApiCreateRequest_hook: WEB API CALLED!
+[Homebrew] ../even_more_fake_psn/source/main.cpp:634 <Error> sceNpWebApiCreateRequest_hook: NO CONTENT PARAMETER PROVIDED
+[Homebrew] ../even_more_fake_psn/source/main.cpp:637 <Error> sceNpWebApiCreateRequest_hook: P PATH ISN'T NULL
+[Homebrew] ../even_more_fake_psn/source/main.cpp:642 <Error> sceNpWebApiCreateRequest_hook: REQUEST ID ASSIGNED
+[Homebrew] ../even_more_fake_psn/source/main.cpp:661 <Error> sceNpWebApiCreateRequest_hook: STARTING EMPLACE
+[Homebrew] ../even_more_fake_psn/source/main.cpp:665 <Error> sceNpWebApiCreateRequest_hook: EMPLACE DONE, RETURNING.
+[Homebrew] ../even_more_fake_psn/source/main.cpp:533 <Error> sceNpWebApiSendRequest_hook: (STUBBED) SendRequest called for ID: '0'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:538 <Error> sceNpWebApiGetHttpStatusCode_hook: (STUBBED) called, request_id: '1'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:549 <Error> sceNpWebApiGetHttpStatusCode_hook: GetHttpStatusCode: Found ID '1', returning 200 OK
+[Homebrew] ../even_more_fake_psn/source/main.cpp:558 <Error> sceNpWebApiReadData_hook: (STUBBED) called, request_id: '1'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:579 <Error> sceNpWebApiReadData_hook: ReadData: ID '1' Type '120' copying '37' bytes to app.
+[Homebrew] ../even_more_fake_psn/source/main.cpp:580 <Error> sceNpWebApiReadData_hook: JSON Body: {"totalResults": 0, "friendList": []}
+[Homebrew] ../even_more_fake_psn/source/main.cpp:590 <Error> sceNpWebApiDeleteRequest_hook: (STUBBED) called, request_id: '1'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:598 <Error> sceNpWebApiDeleteRequest_hook: Deleted request ID '1' from map
+[Homebrew] ../even_more_fake_psn/source/main.cpp:784 <Error> sceNpCheckNpAvailability_hook: (STUBBED) called, req_id = 0x20000001, is_async = true
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1148 <Warning> sceNpPollAsync_hook: called req_id = 0x20000001, returning result = 0x0
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1028 <Error> sceNpGetParentalControlInfo_hook: (STUBBED) called, req_id = 0x20000002, is_async = true
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1148 <Warning> sceNpPollAsync_hook: called req_id = 0x20000002, returning result = 0x0
+[Homebrew] ../even_more_fake_psn/source/main.cpp:903 <Error> sceNpCheckPlus_hook: (STUBBED) called, req_id = 0x20000003, is_async = true, param.features = 0x3
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1148 <Warning> sceNpPollAsync_hook: called req_id = 0x20000003, returning result = 0x0
+[Homebrew] ../even_more_fake_psn/source/main.cpp:445 <Error> sceHttpCreateConnectionWithURL_hook: Redirecting CreateConnection URL:
+[Homebrew] ../even_more_fake_psn/source/main.cpp:446 <Error> sceHttpCreateConnectionWithURL_hook: Original: 'https://ss4.scej-network.jp:20443/bb-us/ss.info'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:447 <Error> sceHttpCreateConnectionWithURL_hook: Redirected: 'http://bbnet.yahargul.info:20443/bb-us/ss.info'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:420 <Error> sceHttpCreateRequestWithURL_hook: sceHttp::sceHttpCreateRequestWithURL->Url: 'https://ss4.scej-network.jp:20443/bb-us/ss.info'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:423 <Error> sceHttpCreateRequestWithURL_hook: Redirecting CreateRequest URL:
+[Homebrew] ../even_more_fake_psn/source/main.cpp:424 <Error> sceHttpCreateRequestWithURL_hook: Original: 'https://ss4.scej-network.jp:20443/bb-us/ss.info'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:425 <Error> sceHttpCreateRequestWithURL_hook: Redirected: 'http://bbnet.yahargul.info:20443/bb-us/ss.info'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:468 <Error> sceHttpsDisableOption_hook: HTTPS Disable called, returning zero to '0x23e709a'

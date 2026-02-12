@@ -58,5 +58,6 @@ s32 sceNpAuthGetAuthorizationCodeA();
 s32 sceNpAuthCreateAsyncRequest();
 s32 sceNpAuthDeleteRequest();
 s32 sceNpAuthPollAsync();
+s32 sceNpAuthCreateRequest();
 }
  

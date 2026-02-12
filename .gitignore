@@ -46,3 +46,6 @@ common/git_ver.h
 
 *.patch
 .vscode
+/.vs
+/plugin_src/even_more_fake_psn/source/httplib.h
+/plugin_src/even_more_fake_psn/source/main.cpp.bak
