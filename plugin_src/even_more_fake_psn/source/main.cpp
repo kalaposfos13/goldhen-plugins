@@ -25,6 +25,7 @@
 #include "np_types.h"
 #include "np_web_api.h"
 #include "np_score.h"
+#include "sysmodule.h"
 
 #include "ssl.h"
 
@@ -45,42 +46,6 @@ std::string getUserName() {
 }
 } // namespace Config
 
-std::string ReplaceHost(std::string url, bool force_http = true) {
-    LOG_ERROR("Current Url: '{}'", url);
-    // return url;
-
-    std::string new_host = "bbnet.yahargul.info";
-
-    std::string separator = "://";
-    u64 protocol_pos = url.find(separator);
-
-    u64 host_start = 0;
-
-    if (protocol_pos != std::string::npos) {
-        host_start = protocol_pos + separator.length();
-    }
-
-    u64 host_end = url.find_first_of("/:?#", host_start);
-    if (host_end == std::string::npos) {
-        host_end = url.length();
-    }
-
-    url.replace(host_start, host_end - host_start, new_host);
-
-    if (force_http && true) {
-        if (protocol_pos != std::string::npos) {
-
-            url.replace(0, protocol_pos, "http");
-        } else {
-
-            url.insert(0, "http://");
-        }
-    }
-
-    LOG_ERROR("Replaced URL host, new URL: '{}'", url);
-
-    return url;
-}
 
 static bool g_signed_in = true;
 static s32 g_active_requests = 0;
@@ -200,6 +165,10 @@ HOOK_INIT(sceNpWebApiSendRequest);
 HOOK_INIT(sceNpWebApiGetHttpStatusCode);
 HOOK_INIT(sceNpWebApiReadData);
 HOOK_INIT(sceNpWebApiDeleteRequest);
+HOOK_INIT(sceNpWebApiCreateContext);
+HOOK_INIT(sceNpWebApiCreatePushEventFilter);
+HOOK_INIT(sceNpWebApiRegisterPushEventCallback);
+
 
 HOOK_INIT(sceHttpsDisableOption);
 HOOK_INIT(sceHttpsEnableOption);
@@ -207,13 +176,25 @@ HOOK_INIT(sceHttpCreateConnectionWithURL);
 HOOK_INIT(sceHttpCreateRequestWithURL);
 
 HOOK_INIT(sceSslInit);
-
-
 HOOK_INIT(sceNpSignalingInitialize);
-
-
 HOOK_INIT(sceNpScoreCreateNpTitleCtx);
 
+
+
+s32 PS4_SYSV_ABI sceNpWebApiCreateContext_hook() {
+    LOG_ERROR("(STUBBED) called");
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI sceNpWebApiCreatePushEventFilter_hook() {
+    LOG_ERROR("(STUBBED) called");
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI sceNpWebApiRegisterPushEventCallback_hook() {
+    LOG_ERROR("(STUBBED) called");
+    return ORBIS_OK;
+}
 
 s32 GetAuthorizationCode(s32 req_id, const OrbisNpAuthGetAuthorizationCodeParameterA* param,
                          s32 flag, OrbisNpAuthorizationCode* auth_code, s32* issuer_id) {
@@ -277,6 +258,7 @@ s32 GetAuthorizationCode(s32 req_id, const OrbisNpAuthGetAuthorizationCodeParame
 }
 
 s32 CreateNpRequest(bool async) {
+
     if (g_active_requests == ORBIS_NP_MANAGER_REQUEST_LIMIT) {
         return ORBIS_NP_ERROR_REQUEST_MAX;
     }
@@ -731,7 +713,7 @@ s32 PS4_SYSV_ABI sceNpCreateRequest_hook() {
 }
 
 s32 PS4_SYSV_ABI sceNpCreateAsyncRequest_hook(const OrbisNpCreateAsyncRequestParameter* param) {
-    LOG_DEBUG("called");
+    LOG_ERROR("SCENPCREATEASYNCREQUEST CALLED!  AUTH IS COMING!");
     if (param == nullptr) {
         return ORBIS_NP_ERROR_INVALID_ARGUMENT;
     }
@@ -739,7 +721,7 @@ s32 PS4_SYSV_ABI sceNpCreateAsyncRequest_hook(const OrbisNpCreateAsyncRequestPar
     if (param->size != sizeof(OrbisNpCreateAsyncRequestParameter)) {
         return ORBIS_NP_ERROR_INVALID_SIZE;
     }
-
+    LOG_ERROR("SCENPCREATEASYNCREQUEST WAS SUCCESSFUL! CREATING NPREQUEST, SETTING ASYNC TO TRUE!");
     return CreateNpRequest(true);
 }
 
@@ -1281,7 +1263,9 @@ s32 PS4_SYSV_ABI sceNpGetNpId_hook(OrbisUserServiceUserId user_id, OrbisNpId* np
 }
 
 s32 PS4_SYSV_ABI sceNpGetOnlineId_hook(OrbisUserServiceUserId user_id, OrbisNpOnlineId* online_id) {
-    LOG_DEBUG("user_id {}", user_id);
+    LOG_ERROR("user_id {}", user_id);
+
+    static const char* kTestName = "metrikPS4";
     if (online_id == nullptr) {
         return ORBIS_NP_ERROR_INVALID_ARGUMENT;
     }
@@ -1289,7 +1273,9 @@ s32 PS4_SYSV_ABI sceNpGetOnlineId_hook(OrbisUserServiceUserId user_id, OrbisNpOn
         return ORBIS_NP_ERROR_SIGNED_OUT;
     }
     memset(online_id, 0, sizeof(OrbisNpOnlineId));
-    strncpy(online_id->data, Config::getUserName().c_str(), sizeof(online_id->data));
+    LOG_ERROR("Online_id = '{}'", (void*)online_id);
+    strncpy(online_id->data, kTestName, sizeof(online_id->data));
+    LOG_ERROR("Online_id = '{}'", online_id->data);
     return ORBIS_OK;
 }
 
@@ -1409,6 +1395,9 @@ s32 attr_public plugin_load(s32 argc, const char* argv[]) {
     HOOK(sceSslInit);
     HOOK(sceNpSignalingInitialize);
     HOOK(sceNpScoreCreateNpTitleCtx);
+    HOOK(sceNpWebApiCreateContext);
+    HOOK(sceNpWebApiCreatePushEventFilter);
+    HOOK(sceNpWebApiRegisterPushEventCallback);      
     return 0;
 }
 
@@ -1467,6 +1456,9 @@ s32 attr_public plugin_unload(s32 argc, const char* argv[]) {
     UNHOOK(sceSslInit);
     UNHOOK(sceNpSignalingInitialize);
     UNHOOK(sceNpScoreCreateNpTitleCtx);
+    UNHOOK(sceNpWebApiCreateContext);
+    UNHOOK(sceNpWebApiCreatePushEventFilter);
+    UNHOOK(sceNpWebApiRegisterPushEventCallback);        
     return 0;
 }
 
