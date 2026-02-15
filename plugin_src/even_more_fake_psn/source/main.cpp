@@ -25,7 +25,6 @@
 #include "np_types.h"
 #include "np_web_api.h"
 #include "np_score.h"
-#include "sysmodule.h"
 
 #include "ssl.h"
 
