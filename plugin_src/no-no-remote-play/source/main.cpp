@@ -18,7 +18,7 @@
 
 extern "C" {
 
-attr_public const char* g_pluginName = "even faker psn";
+attr_public const char* g_pluginName = "no no-remote-play";
 attr_public const char* g_pluginDesc = "";
 attr_public const char* g_pluginAuth = "kalaposfos, metr1k";
 attr_public u32 g_pluginVersion = 0x00000100; // 1.00
