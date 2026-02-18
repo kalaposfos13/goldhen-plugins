@@ -18,7 +18,7 @@ TARGET_ELF   := $(BUILD_FOLDER)/elf$(TYPE)/$(OUTPUT_PRX)
 TARGETSTUB   := $(OUTPUT_PRX).so
 
 # Libraries linked into the ELF.
-LIBS := -lSceLibcInternal -lGoldHEN_Hook -lkernel -lSceSysmodule -lc -lc++ -lSceHttp -lSceUserService -lSceNpManager -lSceNpWebApi -lSceNpAuth -lSceNpScore -lSceNpSignaling -lSceSsl
+LIBS := -lSceLibcInternal -lGoldHEN_Hook -lkernel -lc -lc++ 
 
 EXTRAFLAGS := $(DEBUG_FLAGS) $(LOG_TYPE) -fcolor-diagnostics -Wall
 
