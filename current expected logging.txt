@@ -1,66 +1,251 @@
-[Homebrew] ../even_more_fake_psn/source/main.cpp:410 <Error> sceNpSetContentRestriction_hook: NPSETCONTENTRESTRICTION called, returning zero to '0x23b7054'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:401 <Error> sceSslInit_hook: (DUMMY) called poolSize = 311296
-[Homebrew] ../even_more_fake_psn/source/main.cpp:463 <Error> sceHttpsEnableOption_hook: HTTPS Enable called, returning zero to 0x227dae3
-[Homebrew] ../even_more_fake_psn/source/main.cpp:1266 <Error> sceNpGetOnlineId_hook: user_id 365377988
-[Homebrew] ../even_more_fake_psn/source/main.cpp:1276 <Error> sceNpGetOnlineId_hook: Online_id = '0x7eea3bca8'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:1278 <Error> sceNpGetOnlineId_hook: Online_id = 'metrikPS4'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:1266 <Error> sceNpGetOnlineId_hook: user_id 365377988
-[Homebrew] ../even_more_fake_psn/source/main.cpp:1276 <Error> sceNpGetOnlineId_hook: Online_id = '0x30d30c338'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:1278 <Error> sceNpGetOnlineId_hook: Online_id = 'metrikPS4'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:621 <Error> sceNpWebApiCreateRequest_hook: WEB API CALLED!
-[Homebrew] ../even_more_fake_psn/source/main.cpp:634 <Error> sceNpWebApiCreateRequest_hook: NO CONTENT PARAMETER PROVIDED
-[Homebrew] ../even_more_fake_psn/source/main.cpp:637 <Error> sceNpWebApiCreateRequest_hook: P PATH ISN'T NULL
-[Homebrew] ../even_more_fake_psn/source/main.cpp:642 <Error> sceNpWebApiCreateRequest_hook: REQUEST ID ASSIGNED
-[Homebrew] ../even_more_fake_psn/source/main.cpp:661 <Error> sceNpWebApiCreateRequest_hook: STARTING EMPLACE
-[Homebrew] ../even_more_fake_psn/source/main.cpp:665 <Error> sceNpWebApiCreateRequest_hook: EMPLACE DONE, RETURNING.
-[Homebrew] ../even_more_fake_psn/source/main.cpp:533 <Error> sceNpWebApiSendRequest_hook: (STUBBED) SendRequest called for ID: '0'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:538 <Error> sceNpWebApiGetHttpStatusCode_hook: (STUBBED) called, request_id: '0'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:549 <Error> sceNpWebApiGetHttpStatusCode_hook: GetHttpStatusCode: Found ID '0', returning 200 OK
-[Homebrew] ../even_more_fake_psn/source/main.cpp:558 <Error> sceNpWebApiReadData_hook: (STUBBED) called, request_id: '0'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:579 <Error> sceNpWebApiReadData_hook: ReadData: ID '0' Type '110' copying '36' bytes to app.
-[Homebrew] ../even_more_fake_psn/source/main.cpp:580 <Error> sceNpWebApiReadData_hook: JSON Body: {"totalResults": 0, "blockList": []}
-[Homebrew] ../even_more_fake_psn/source/main.cpp:590 <Error> sceNpWebApiDeleteRequest_hook: (STUBBED) called, request_id: '0'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:598 <Error> sceNpWebApiDeleteRequest_hook: Deleted request ID '0' from map
-[Homebrew] ../even_more_fake_psn/source/main.cpp:621 <Error> sceNpWebApiCreateRequest_hook: WEB API CALLED!
-[Homebrew] ../even_more_fake_psn/source/main.cpp:634 <Error> sceNpWebApiCreateRequest_hook: NO CONTENT PARAMETER PROVIDED
-[Homebrew] ../even_more_fake_psn/source/main.cpp:637 <Error> sceNpWebApiCreateRequest_hook: P PATH ISN'T NULL
-[Homebrew] ../even_more_fake_psn/source/main.cpp:642 <Error> sceNpWebApiCreateRequest_hook: REQUEST ID ASSIGNED
-[Homebrew] ../even_more_fake_psn/source/main.cpp:661 <Error> sceNpWebApiCreateRequest_hook: STARTING EMPLACE
-[Homebrew] ../even_more_fake_psn/source/main.cpp:665 <Error> sceNpWebApiCreateRequest_hook: EMPLACE DONE, RETURNING.
-[Homebrew] ../even_more_fake_psn/source/main.cpp:533 <Error> sceNpWebApiSendRequest_hook: (STUBBED) SendRequest called for ID: '0'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:538 <Error> sceNpWebApiGetHttpStatusCode_hook: (STUBBED) called, request_id: '1'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:549 <Error> sceNpWebApiGetHttpStatusCode_hook: GetHttpStatusCode: Found ID '1', returning 200 OK
-[Homebrew] ../even_more_fake_psn/source/main.cpp:558 <Error> sceNpWebApiReadData_hook: (STUBBED) called, request_id: '1'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:579 <Error> sceNpWebApiReadData_hook: ReadData: ID '1' Type '120' copying '37' bytes to app.
-[Homebrew] ../even_more_fake_psn/source/main.cpp:580 <Error> sceNpWebApiReadData_hook: JSON Body: {"totalResults": 0, "friendList": []}
-[Homebrew] ../even_more_fake_psn/source/main.cpp:590 <Error> sceNpWebApiDeleteRequest_hook: (STUBBED) called, request_id: '1'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:598 <Error> sceNpWebApiDeleteRequest_hook: Deleted request ID '1' from map
-[Homebrew] ../even_more_fake_psn/source/main.cpp:716 <Error> sceNpCreateAsyncRequest_hook: SCENPCREATEASYNCREQUEST CALLED!  AUTH IS COMING!
-[Homebrew] ../even_more_fake_psn/source/main.cpp:724 <Error> sceNpCreateAsyncRequest_hook: SCENPCREATEASYNCREQUEST WAS SUCCESSFUL! CREATING NPREQUEST, SETTING ASYNC TO TRUE!
-[Homebrew] ../even_more_fake_psn/source/main.cpp:760 <Error> sceNpCheckNpAvailability_hook: (STUBBED) called, req_id = 0x20000001, is_async = true
-[Homebrew] ../even_more_fake_psn/source/main.cpp:1124 <Warning> sceNpPollAsync_hook: called req_id = 0x20000001, returning result = 0x0
-[Homebrew] ../even_more_fake_psn/source/main.cpp:716 <Error> sceNpCreateAsyncRequest_hook: SCENPCREATEASYNCREQUEST CALLED!  AUTH IS COMING!
-[Homebrew] ../even_more_fake_psn/source/main.cpp:724 <Error> sceNpCreateAsyncRequest_hook: SCENPCREATEASYNCREQUEST WAS SUCCESSFUL! CREATING NPREQUEST, SETTING ASYNC TO TRUE!
-[Homebrew] ../even_more_fake_psn/source/main.cpp:1004 <Error> sceNpGetParentalControlInfo_hook: (STUBBED) called, req_id = 0x20000002, is_async = true
-[Homebrew] ../even_more_fake_psn/source/main.cpp:1124 <Warning> sceNpPollAsync_hook: called req_id = 0x20000002, returning result = 0x0
-[Homebrew] ../even_more_fake_psn/source/main.cpp:716 <Error> sceNpCreateAsyncRequest_hook: SCENPCREATEASYNCREQUEST CALLED!  AUTH IS COMING!
-[Homebrew] ../even_more_fake_psn/source/main.cpp:724 <Error> sceNpCreateAsyncRequest_hook: SCENPCREATEASYNCREQUEST WAS SUCCESSFUL! CREATING NPREQUEST, SETTING ASYNC TO TRUE!
-[Homebrew] ../even_more_fake_psn/source/main.cpp:879 <Error> sceNpCheckPlus_hook: (STUBBED) called, req_id = 0x20000003, is_async = true, param.features = 0x3
-[Homebrew] ../even_more_fake_psn/source/main.cpp:1124 <Warning> sceNpPollAsync_hook: called req_id = 0x20000003, returning result = 0x0
-[Homebrew] ../even_more_fake_psn/source/main.cpp:396 <Error> sceHttpCreateRequestWithURL_hook: sceHttp::sceHttpCreateRequestWithURL->Url: 'http://bbnet.yahargul.info:20443/bb-us/ss.info'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:444 <Error> sceHttpsDisableOption_hook: HTTPS Disable called, returning zero to '0x23e709a'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:478 <Error> sceNpAuthCreateAsyncRequest_hook: AUTH CREATE ASYNC REQUEST MADE!
-[Homebrew] ../even_more_fake_psn/source/main.cpp:292 <Error> CreateNpAuthRequest: CREATE NPAUTH REQUEST MADE!
-[Homebrew] ../even_more_fake_psn/source/main.cpp:297 <Error> CreateNpAuthRequest: NOT AT NPAUTH LIMIT!
-[Homebrew] ../even_more_fake_psn/source/main.cpp:299 <Error> CreateNpAuthRequest: NPAUTH ADDING TO INDEX!
-[Homebrew] ../even_more_fake_psn/source/main.cpp:316 <Error> CreateNpAuthRequest: REQUEST ADDED NPAUTH
-[Homebrew] ../even_more_fake_psn/source/main.cpp:321 <Error> CreateNpAuthRequest: called, async = true
-[Homebrew] ../even_more_fake_psn/source/main.cpp:650 <Error> sceNpAuthGetAuthorizationCode_hook: GetAuthCode: Called! req_id: '268435457'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:679 <Info> sceNpAuthGetAuthorizationCode_hook: GetAuthCode: Resolving for UserID: '365377988', Scope: 'psn:s2s'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:202 <Error> GetAuthorizationCode: GETAUTHLOOP CALLED
-[Homebrew] ../even_more_fake_psn/source/main.cpp:248 <Error> GetAuthorizationCode: (STUBBED) called, req_id = '268435457', async = 'true'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:255 <Error> GetAuthorizationCode: GetAuthCode SUCCESS: Returning Token: 'DUMMY-CODE', IssuerID: '10'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:451 <Error> sceNpAuthPollAsync_hook: ASYNC AUTH POLL CALLED
-[Homebrew] ../even_more_fake_psn/source/main.cpp:473 <Error> sceNpAuthPollAsync_hook: called req_id = '268435457', returning result = '0'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:493 <Error> sceNpAuthDeleteRequest_hook: called req_id = '268435457'
-[Homebrew] ../even_more_fake_psn/source/main.cpp:396 <Error> sceHttpCreateRequestWithURL_hook: sceHttp::sceHttpCreateRequestWithURL->Url: 'http://bbnet.yahargul.info:18671/basic_utils/login'
+<118>[SceShellCore] Best effort threads use 2 CPU cores.
+<118>[GoldHEN] <Plugins Loader> Started successfully
+<118>Section [default] is default
+<118>/data/GoldHEN/plugins/game_patch.prx=
+<118>[GoldHEN] <Plugins Loader> Starting /data/GoldHEN/plugins/game_patch.prx
+<118>[GoldHEN] <Plugins Loader> Loaded Plugin /data/GoldHEN/plugins/game_patch.prx
+<118>[GoldHEN] <Plugins Loader> Plugin Handle 0x00002083 Dlsym 0x00000000
+<118>[GoldHEN] <Plugins Loader> plugin_load Dlsym 0x00000000 @ 0x80080cbc0
+<118>[GoldHEN] <Plugins Loader> plugin_unload Dlsym 0x00000000 @ 0x80080cf70
+<118>[GoldHEN] <Plugins Loader> Starting plugin...
+<118>(../game_patch/source/main.cpp:255) [GoldHEN] <game_patch\Ver.0x00000110> plugin_load
+<118>(../game_patch/source/main.cpp:256) [GoldHEN] Plugin Author(s): illusion
+<118>(../game_patch/source/main.cpp:257) Commit: 998fe03fe0275b59310511187ba8550ed475a003 Branch: main Build: 210 (Release)
+<118>(../game_patch/source/main.cpp:257) Built: Jun 16 2025 @ 09:21:02
+<118>(../game_patch/source/main.cpp:257) GoldHEN SDK Ver: 0x00000100
+<118>(../game_patch/source/main.cpp:257) GoldHEN System SDK Ver: 0xffffffff
+<118>(../game_patch/source/utils.cpp:89) numModules: 31
+<118>(../game_patch/source/utils.cpp:93) ret 0x0
+<118>(../game_patch/source/utils.cpp:94) module 0
+<118>(../game_patch/source/utils.cpp:95) name: eboot.bin
+<118>(../game_patch/source/utils.cpp:96) start: 0x400000
+<118>(../game_patch/source/utils.cpp:97) size: 84787200 (0x050dc000) bytes
+<118>(../game_patch/source/main.cpp:266) Module start: 0x400000 0x50dc000
+<118>(../game_patch/source/main.cpp:273) process info
+<118>(../game_patch/source/main.cpp:273) pid: 169
+<118>(../game_patch/source/main.cpp:273) name: eboot.bin
+<118>(../game_patch/source/main.cpp:273) path: /app0/eboot.bin
+<118>(../game_patch/source/main.cpp:273) titleid: CUSA00900
+<118>(../game_patch/source/main.cpp:273) contentid: UP9000-CUSA00900_00-BLOODBORNE000000
+<118>(../game_patch/source/main.cpp:273) version: 01.09
+<118>(../game_patch/source/main.cpp:273) base_address: 0x400000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0x8dc4c9444c796c4a.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:113) App ver 01.09 == 01.09
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0x219f16113b0d44fd.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:113) App ver 01.09 == 01.09
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0x7fb8302bd5a44fc7.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0xdc91ea06573d3459.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0x1ebe778d37951af1.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0x7980372e6763207f.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0x0fa670afd807b456.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0xca7e6ab76f7f3381.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:113) App ver 01.09 == 01.09
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0xd2286a48993e8572.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0x988c729400d67d77.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0xa038ff0a5fb563f7.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0x5063cd5d8edc5b35.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0xce07f2fd3b92cbd0.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:113) App ver 01.09 == 01.09
+<118>(../../common/plugin_common.cpp:10) Notify text:
+<118>4 Patches Applied
+<118>271 Patch Lines Applied
+<118>[GoldHEN] <Plugins Loader> plugin_load returned with 0x00000000
+<118>[GoldHEN] <Plugins Loader> plugin_load exit successful 0x00000000
+<118>/data/GoldHEN/plugins/even_more_fake_psn.prx=
+<118>[GoldHEN] <Plugins Loader> Starting /data/GoldHEN/plugins/even_more_fake_psn.prx
+<118>[GoldHEN] <Plugins Loader> Loaded Plugin /data/GoldHEN/plugins/even_more_fake_psn.prx
+<118>[GoldHEN] <Plugins Loader> Plugin Handle 0x00000084 Dlsym 0x00000000
+<118>[GoldHEN] <Plugins Loader> plugin_load Dlsym 0x00000000 @ 0x800852200
+<118>[GoldHEN] <Plugins Loader> plugin_unload Dlsym 0x00000000 @ 0x800853500
+<118>[GoldHEN] <Plugins Loader> Starting plugin...
+<118>(../even_more_fake_psn/source/main.cpp:1408) [GoldHEN] <even faker psn\Ver.0x00000100> plugin_load
+<118>(../even_more_fake_psn/source/main.cpp:1409) [GoldHEN] Plugin Author(s): kalaposfos, metr1k
+<118>(../even_more_fake_psn/source/main.cpp:1410) Commit: 998fe03fe0275b59310511187ba8550ed475a003 Branch: main Build: 210 (Release)
+<118>(../even_more_fake_psn/source/main.cpp:1410) Built: Feb 19 2026 @ 14:20:51
+<118>(../even_more_fake_psn/source/main.cpp:1410) GoldHEN SDK Ver: 0x00000100
+<118>(../even_more_fake_psn/source/main.cpp:1410) GoldHEN System SDK Ver: 0xffffffff
+<118>(../even_more_fake_psn/source/main.cpp:1414) process info
+<118>(../even_more_fake_psn/source/main.cpp:1414) pid: 169
+<118>(../even_more_fake_psn/source/main.cpp:1414) name: eboot.bin
+<118>(../even_more_fake_psn/source/main.cpp:1414) path: /app0/eboot.bin
+<118>(../even_more_fake_psn/source/main.cpp:1414) titleid: CUSA00900
+<118>(../even_more_fake_psn/source/main.cpp:1414) contentid: UP9000-CUSA00900_00-BLOODBORNE000000
+<118>(../even_more_fake_psn/source/main.cpp:1414) version: 01.09
+<118>(../even_more_fake_psn/source/main.cpp:1414) base_address: 0x400000
+<118>plugin_load:1417 HOOK64() Create sceNpCreateRequest
+<118>plugin_load:1418 HOOK64() Create sceNpCreateAsyncRequest
+<118>plugin_load:1419 HOOK64() Create sceNpCheckNpAvailability
+<118>plugin_load:1420 HOOK64() Create sceNpCheckNpAvailabilityA
+<118>plugin_load:1421 HOOK64() Create sceNpCheckNpReachability
+<118>plugin_load:1422 HOOK64() Create sceNpCheckPlus
+<118>plugin_load:1423 HOOK64() Create sceNpGetAccountLanguage
+<118>plugin_load:1424 HOOK64() Create sceNpGetAccountLanguageA
+<118>plugin_load:1425 HOOK64() Create sceNpGetParentalControlInfo
+<118>plugin_load:1426 HOOK64() Create sceNpGetParentalControlInfoA
+<118>plugin_load:1427 HOOK64() Create sceNpAbortRequest
+<118>plugin_load:1428 HOOK64() Create sceNpWaitAsync
+<118>plugin_load:1429 HOOK64() Create sceNpPollAsync
+<118>plugin_load:1430 HOOK64() Create sceNpDeleteRequest
+<118>plugin_load:1431 HOOK64() Create sceNpGetAccountCountry
+<118>plugin_load:1432 HOOK64() Create sceNpGetAccountCountryA
+<118>plugin_load:1433 HOOK64() Create sceNpGetAccountDateOfBirth
+<118>plugin_load:1434 HOOK64() Create sceNpGetAccountDateOfBirthA
+<118>plugin_load:1435 HOOK64() Create sceNpGetGamePresenceStatus
+<118>plugin_load:1436 HOOK64() Create sceNpGetGamePresenceStatusA
+<118>plugin_load:1437 HOOK64() Create sceNpGetAccountId
+<118>plugin_load:1438 HOOK64() Create sceNpGetAccountIdA
+<118>plugin_load:1439 HOOK64() Create sceNpGetNpId
+<118>plugin_load:1440 HOOK64() Create sceNpGetOnlineId
+<118>plugin_load:1441 HOOK64() Create sceNpGetNpReachabilityState
+<118>plugin_load:1442 HOOK64() Create sceNpGetState
+<118>plugin_load:1443 HOOK64() Create sceNpHasSignedUp
+<118>plugin_load:1444 HOOK64() Create sceNpCheckCallback
+<118>plugin_load:1445 HOOK64() Create sceNpCheckCallbackForLib
+<118>plugin_load:1446 HOOK64() Create sceNpSetContentRestriction
+<118>plugin_load:1447 HOOK64() Create sceNpAuthGetAuthorizationCode
+<118>plugin_load:1448 HOOK64() Create sceNpAuthGetAuthorizationCodeA
+<118>plugin_load:1450 HOOK64() Create sceNpManagerIntGetSigninState
+<118>plugin_load:1451 HOOK64() Create sceNpManagerIntIsSubAccount
+<118>plugin_load:1452 HOOK64() Create sceNpAuthCreateRequest
+<118>plugin_load:1453 HOOK64() Create sceNpAuthCreateAsyncRequest
+<118>plugin_load:1454 HOOK64() Create sceNpAuthDeleteRequest
+<118>plugin_load:1455 HOOK64() Create sceNpAuthPollAsync
+<118>plugin_load:1456 HOOK64() Create sceNpWebApiCreateRequest
+<118>plugin_load:1457 HOOK64() Create sceNpWebApiSendRequest
+<118>plugin_load:1458 HOOK64() Create sceNpWebApiGetHttpStatusCode
+<118>plugin_load:1459 HOOK64() Create sceNpWebApiReadData
+<118>plugin_load:1460 HOOK64() Create sceNpWebApiDeleteRequest
+<118>plugin_load:1461 HOOK64() Create sceHttpsEnableOption
+<118>plugin_load:1462 HOOK64() Create sceHttpsDisableOption
+<118>plugin_load:1463 HOOK64() Create sceHttpCreateConnectionWithURL
+<118>plugin_load:1464 HOOK64() Create sceHttpCreateRequestWithURL
+<118>plugin_load:1465 HOOK64() Create sceSslInit
+<118>plugin_load:1466 HOOK64() Create sceNpSignalingInitialize
+<118>plugin_load:1467 HOOK64() Create sceNpScoreCreateNpTitleCtx
+<118>plugin_load:1468 HOOK64() Create sceNpWebApiCreateContext
+<118>plugin_load:1469 HOOK64() Create sceNpWebApiCreatePushEventFilter
+<118>plugin_load:1470 HOOK64() Create sceNpWebApiRegisterPushEventCallback
+<118>plugin_load:1471 HOOK64() Create sceNpRegisterStateCallback
+<118>plugin_load:1472 HOOK64() Create sceNpMatching2RegisterContextCallback
+<118>plugin_load:1473 HOOK64() Create sceNpMatching2CreateContext
+<118>plugin_load:1474 HOOK64() Create sceNpMatching2ContextStart
+<118>plugin_load:1475 HOOK64() Create sceNpMatching2Initialize
+<118>plugin_load:1476 HOOK64() Create sceNpRegisterGamePresenceCallback
+<118>plugin_load:1477 HOOK64() Create sceNpSetNpTitleId
+<118>[GoldHEN] <Plugins Loader> plugin_load returned with 0x00000000
+<118>[GoldHEN] <Plugins Loader> plugin_load exit successful 0x00000000
+<118>Section is TitleID [CUSA00900]
+<118>[GoldHEN] <Plugins Loader> Loaded 2 plugin(s)
+<118>(../game_patch/source/main.cpp:255) [GoldHEN] <game_patch\Ver.0x00000110> plugin_load
+<118>(../game_patch/source/main.cpp:256) [GoldHEN] Plugin Author(s): illusion
+<118>(../game_patch/source/main.cpp:257) Commit: 998fe03fe0275b59310511187ba8550ed475a003 Branch: main Build: 210 (Release)
+<118>(../game_patch/source/main.cpp:257) Built: Jun 16 2025 @ 09:21:02
+<118>(../game_patch/source/main.cpp:257) GoldHEN SDK Ver: 0x00000100
+<118>(../game_patch/source/main.cpp:257) GoldHEN System SDK Ver: 0xffffffff
+<118>(../game_patch/source/utils.cpp:89) numModules: 32
+<118>(../game_patch/source/utils.cpp:93) ret 0x0
+<118>(../game_patch/source/utils.cpp:94) module 0
+<118>(../game_patch/source/utils.cpp:95) name: eboot.bin
+<118>(../game_patch/source/utils.cpp:96) start: 0x400000
+<118>(../game_patch/source/utils.cpp:97) size: 84787200 (0x050dc000) bytes
+<118>(../game_patch/source/main.cpp:266) Module start: 0x400000 0x50dc000
+<118>(../game_patch/source/main.cpp:273) process info
+<118>(../game_patch/source/main.cpp:273) pid: 169
+<118>(../game_patch/source/main.cpp:273) name: eboot.bin
+<118>(../game_patch/source/main.cpp:273) path: /app0/eboot.bin
+<118>(../game_patch/source/main.cpp:273) titleid: CUSA00900
+<118>(../game_patch/source/main.cpp:273) contentid: UP9000-CUSA00900_00-BLOODBORNE000000
+<118>(../game_patch/source/main.cpp:273) version: 01.09
+<118>(../game_patch/source/main.cpp:273) base_address: 0x400000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0x8dc4c9444c796c4a.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:113) App ver 01.09 == 01.09
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0x219f16113b0d44fd.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:113) App ver 01.09 == 01.09
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0x7fb8302bd5a44fc7.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0xdc91ea06573d3459.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0x1ebe778d37951af1.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0x7980372e6763207f.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0x0fa670afd807b456.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0xca7e6ab76f7f3381.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:113) App ver 01.09 == 01.09
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0xd2286a48993e8572.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0x988c729400d67d77.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0xa038ff0a5fb563f7.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0x5063cd5d8edc5b35.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:94) settings_path: /data/GoldHEN/patches/settings/0xce07f2fd3b92cbd0.txt, 0x00000000
+<118>(../game_patch/source/main.cpp:113) App ver 01.09 == 01.09
+<118>(../../common/plugin_common.cpp:10) Notify text:
+<118>4 Patches Applied
+<118>271 Patch Lines Applied
+[Homebrew] ../even_more_fake_psn/source/main.cpp:449 <Error> sceNpSetContentRestriction_hook: NPSETCONTENTRESTRICTION called, returning zero to '0x23b7054'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:440 <Error> sceSslInit_hook: (DUMMY) called poolSize = 311296
+[Homebrew] ../even_more_fake_psn/source/main.cpp:503 <Error> sceHttpsEnableOption_hook: HTTPS Enable called, returning zero to 0x227dae3
+[Homebrew] ../even_more_fake_psn/source/main.cpp:196 <Error> sceNpSetNpTitleId_hook: (STUBBED) called,returning zero to 0x10ba197
+[Homebrew] ../even_more_fake_psn/source/main.cpp:242 <Error> sceNpRegisterStateCallback_hook: (STUBBED) called,returning zero to 0x10b8371
+[Homebrew] ../even_more_fake_psn/source/main.cpp:237 <Error> sceNpRegisterGamePresenceCallback_hook: (STUBBED) called,returning zero to 0x10b838b
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1335 <Error> sceNpGetOnlineId_hook: user_id 365377988
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1345 <Error> sceNpGetOnlineId_hook: Online_id = '0x7eea3bca8'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1347 <Error> sceNpGetOnlineId_hook: Online_id = 'metrikPS4'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1335 <Error> sceNpGetOnlineId_hook: user_id 365377988
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1345 <Error> sceNpGetOnlineId_hook: Online_id = '0x30d30c338'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1347 <Error> sceNpGetOnlineId_hook: Online_id = 'metrikPS4'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:247 <Error> sceNpWebApiCreateContext_hook: (STUBBED) called
+[Homebrew] ../even_more_fake_psn/source/main.cpp:252 <Error> sceNpWebApiCreatePushEventFilter_hook: (STUBBED) called
+[Homebrew] ../even_more_fake_psn/source/main.cpp:257 <Error> sceNpWebApiRegisterPushEventCallback_hook: (STUBBED) called
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1317 <Error> sceNpGetNpId_hook: user_id 365377988
+[Homebrew] ../even_more_fake_psn/source/main.cpp:660 <Error> sceNpWebApiCreateRequest_hook: WEB API CALLED!
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1328 <Error> sceNpGetNpId_hook: np_id = '0x7eea13cc0'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1330 <Error> sceNpGetNpId_hook: np_id = 'metrikPS4'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:673 <Error> sceNpWebApiCreateRequest_hook: NO CONTENT PARAMETER PROVIDED
+[Homebrew] ../even_more_fake_psn/source/main.cpp:676 <Error> sceNpWebApiCreateRequest_hook: P PATH ISN'T NULL
+[Homebrew] ../even_more_fake_psn/source/main.cpp:681 <Error> sceNpWebApiCreateRequest_hook: REQUEST ID ASSIGNED
+[Homebrew] ../even_more_fake_psn/source/main.cpp:700 <Error> sceNpWebApiCreateRequest_hook: STARTING EMPLACE
+[Homebrew] ../even_more_fake_psn/source/main.cpp:704 <Error> sceNpWebApiCreateRequest_hook: EMPLACE DONE, RETURNING.
+[Homebrew] ../even_more_fake_psn/source/main.cpp:572 <Error> sceNpWebApiSendRequest_hook: (STUBBED) SendRequest called for ID: '0'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:577 <Error> sceNpWebApiGetHttpStatusCode_hook: (STUBBED) called, request_id: '0'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:588 <Error> sceNpWebApiGetHttpStatusCode_hook: GetHttpStatusCode: Found ID '0', returning 200 OK
+[Homebrew] ../even_more_fake_psn/source/main.cpp:597 <Error> sceNpWebApiReadData_hook: (STUBBED) called, request_id: '0'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:618 <Error> sceNpWebApiReadData_hook: ReadData: ID '0' Type '110' copying '36' bytes to app.
+[Homebrew] ../even_more_fake_psn/source/main.cpp:619 <Error> sceNpWebApiReadData_hook: JSON Body: {"totalResults": 0, "blockList": []}
+[Homebrew] ../even_more_fake_psn/source/main.cpp:629 <Error> sceNpWebApiDeleteRequest_hook: (STUBBED) called, request_id: '0'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:637 <Error> sceNpWebApiDeleteRequest_hook: Deleted request ID '0' from map
+[Homebrew] ../even_more_fake_psn/source/main.cpp:660 <Error> sceNpWebApiCreateRequest_hook: WEB API CALLED!
+[Homebrew] ../even_more_fake_psn/source/main.cpp:673 <Error> sceNpWebApiCreateRequest_hook: NO CONTENT PARAMETER PROVIDED
+[Homebrew] ../even_more_fake_psn/source/main.cpp:676 <Error> sceNpWebApiCreateRequest_hook: P PATH ISN'T NULL
+[Homebrew] ../even_more_fake_psn/source/main.cpp:681 <Error> sceNpWebApiCreateRequest_hook: REQUEST ID ASSIGNED
+[Homebrew] ../even_more_fake_psn/source/main.cpp:700 <Error> sceNpWebApiCreateRequest_hook: STARTING EMPLACE
+[Homebrew] ../even_more_fake_psn/source/main.cpp:704 <Error> sceNpWebApiCreateRequest_hook: EMPLACE DONE, RETURNING.
+[Homebrew] ../even_more_fake_psn/source/main.cpp:572 <Error> sceNpWebApiSendRequest_hook: (STUBBED) SendRequest called for ID: '0'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:577 <Error> sceNpWebApiGetHttpStatusCode_hook: (STUBBED) called, request_id: '1'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:588 <Error> sceNpWebApiGetHttpStatusCode_hook: GetHttpStatusCode: Found ID '1', returning 200 OK
+[Homebrew] ../even_more_fake_psn/source/main.cpp:597 <Error> sceNpWebApiReadData_hook: (STUBBED) called, request_id: '1'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:618 <Error> sceNpWebApiReadData_hook: ReadData: ID '1' Type '120' copying '37' bytes to app.
+[Homebrew] ../even_more_fake_psn/source/main.cpp:619 <Error> sceNpWebApiReadData_hook: JSON Body: {"totalResults": 0, "friendList": []}
+[Homebrew] ../even_more_fake_psn/source/main.cpp:629 <Error> sceNpWebApiDeleteRequest_hook: (STUBBED) called, request_id: '1'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:637 <Error> sceNpWebApiDeleteRequest_hook: Deleted request ID '1' from map
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1317 <Error> sceNpGetNpId_hook: user_id 365377988
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1328 <Error> sceNpGetNpId_hook: np_id = '0x7eeff9f40'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1330 <Error> sceNpGetNpId_hook: np_id = 'metrikPS4'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1317 <Error> sceNpGetNpId_hook: user_id 365377988
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1328 <Error> sceNpGetNpId_hook: np_id = '0x7eea13cc0'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1330 <Error> sceNpGetNpId_hook: np_id = 'metrikPS4'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1317 <Error> sceNpGetNpId_hook: user_id 365377988
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1328 <Error> sceNpGetNpId_hook: np_id = '0x7eea13cc0'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1330 <Error> sceNpGetNpId_hook: np_id = 'metrikPS4'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:824 <Error> sceNpCheckNpAvailability_hook: (STUBBED) called, req_id = 0x20000001, is_async = true
+[Homebrew] ../even_more_fake_psn/source/main.cpp:1068 <Error> sceNpGetParentalControlInfo_hook: (STUBBED) called, req_id = 0x20000002, is_async = true
+[Homebrew] ../even_more_fake_psn/source/main.cpp:460 <Error> sceHttpCreateRequestWithURL_hook: sceHttp::sceHttpCreateRequestWithURL->Url: 'http://10.0.0.197:20443/bb-us/ss.info'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:503 <Error> sceHttpsEnableOption_hook: HTTPS Enable called, returning zero to 0x23e709a
+[Homebrew] ../even_more_fake_psn/source/main.cpp:542 <Error> sceNpAuthCreateAsyncRequest_hook: AUTH CREATE ASYNC REQUEST MADE!
+[Homebrew] ../even_more_fake_psn/source/main.cpp:354 <Error> CreateNpAuthRequest: CREATE NPAUTH REQUEST MADE!
+[Homebrew] ../even_more_fake_psn/source/main.cpp:359 <Error> CreateNpAuthRequest: NOT AT NPAUTH LIMIT!
+[Homebrew] ../even_more_fake_psn/source/main.cpp:361 <Error> CreateNpAuthRequest: NPAUTH ADDING TO INDEX!
+[Homebrew] ../even_more_fake_psn/source/main.cpp:378 <Error> CreateNpAuthRequest: REQUEST ADDED NPAUTH
+[Homebrew] ../even_more_fake_psn/source/main.cpp:383 <Error> CreateNpAuthRequest: called, async = true
+[Homebrew] ../even_more_fake_psn/source/main.cpp:713 <Error> sceNpAuthGetAuthorizationCode_hook: GetAuthCode: Called! req_id: '268435457'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:742 <Info> sceNpAuthGetAuthorizationCode_hook: GetAuthCode: Resolving for UserID: '365377988', Scope: 'psn:s2s'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:264 <Error> GetAuthorizationCode: GETAUTHLOOP CALLED
+[Homebrew] ../even_more_fake_psn/source/main.cpp:310 <Error> GetAuthorizationCode: (STUBBED) called, req_id = '268435457', async = 'true'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:317 <Error> GetAuthorizationCode: GetAuthCode SUCCESS: Returning Token: 'DUMMY-CODE', IssuerID: '10'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:556 <Error> sceNpAuthDeleteRequest_hook: called req_id = '268435457'
+[Homebrew] ../even_more_fake_psn/source/main.cpp:460 <Error> sceHttpCreateRequestWithURL_hook: sceHttp::sceHttpCreateRequestWithURL->Url: 'http://10.0.0.197:18671/basic_utils/login'

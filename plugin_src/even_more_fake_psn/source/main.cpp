@@ -22,10 +22,11 @@
 #include "np_auth_error.h"
 #include "np_error.h"
 #include "np_manager.h"
+#include "np_matching.h"
+#include "np_score.h"
 #include "np_types.h"
 #include "np_web_api.h"
-#include "np_score.h"
-#include "sysmodule.h"
+
 
 #include "ssl.h"
 
@@ -45,7 +46,6 @@ std::string getUserName() {
     return std::string(n);
 }
 } // namespace Config
-
 
 static bool g_signed_in = true;
 static s32 g_active_requests = 0;
@@ -105,9 +105,7 @@ static std::mutex& get_mrequests_mutex() {
     return instance;
 }
 
-
-
-const char *RedirectURL = "http://bbnet.yahargul.info:20443";
+const char* RedirectURL = "http://bbnet.yahargul.info:20443";
 
 extern "C" {
 
@@ -147,7 +145,12 @@ HOOK_INIT(sceNpHasSignedUp);
 HOOK_INIT(sceNpCheckCallback);
 HOOK_INIT(sceNpCheckCallbackForLib);
 HOOK_INIT(sceNpSetContentRestriction);
-
+HOOK_INIT(sceNpRegisterStateCallback);
+HOOK_INIT(sceNpNotifyPlusFeature);
+HOOK_INIT(sceNpRegisterPlusEventCallback);
+HOOK_INIT(sceNpSetNpTitleId);
+HOOK_INIT(sceNpUnregisterPlusEventCallback);
+HOOK_INIT(sceNpUnregisterStateCallback);
 
 HOOK_INIT(sceNpAuthGetAuthorizationCode);
 HOOK_INIT(sceNpAuthGetAuthorizationCodeA);
@@ -169,7 +172,6 @@ HOOK_INIT(sceNpWebApiCreateContext);
 HOOK_INIT(sceNpWebApiCreatePushEventFilter);
 HOOK_INIT(sceNpWebApiRegisterPushEventCallback);
 
-
 HOOK_INIT(sceHttpsDisableOption);
 HOOK_INIT(sceHttpsEnableOption);
 HOOK_INIT(sceHttpCreateConnectionWithURL);
@@ -179,7 +181,68 @@ HOOK_INIT(sceSslInit);
 HOOK_INIT(sceNpSignalingInitialize);
 HOOK_INIT(sceNpScoreCreateNpTitleCtx);
 
+HOOK_INIT(sceNpMatching2RegisterContextCallback);
+HOOK_INIT(sceNpMatching2CreateContext);
+HOOK_INIT(sceNpMatching2ContextStart);
+HOOK_INIT(sceNpMatching2Initialize);
+HOOK_INIT(sceNpRegisterGamePresenceCallback);
+HOOK_INIT(sceNpSetNpTitleId);
+HOOK_INIT(sceNpMatching2GetServerId);
+HOOK_INIT(sceNpMatching2SetDefaultRequestOptParam);
+HOOK_INIT(sceNpMatching2RegisterRoomEventCallback);
+HOOK_INIT(sceNpMatching2RegisterSignalingCallback);
+HOOK_INIT(sceNpMatching2RegisterLobbyEventCallback);
 
+s32 PS4_SYSV_ABI sceNpSetNpTitleId_hook() {
+    LOG_ERROR("(STUBBED) called,returning zero to {}", __builtin_return_address(0));
+    return 0;
+}
+s32 PS4_SYSV_ABI sceNpMatching2Initialize_hook() {
+    LOG_ERROR("(STUBBED) called,returning zero to {}", __builtin_return_address(0));
+    return 0;
+}
+s32 PS4_SYSV_ABI sceNpMatching2RegisterContextCallback_hook() {
+    LOG_ERROR("(STUBBED) called,returning zero to {}", __builtin_return_address(0));
+    return 0;
+}
+s32 PS4_SYSV_ABI sceNpMatching2CreateContext_hook() {
+    LOG_ERROR("(STUBBED) called,returning zero to {}", __builtin_return_address(0));
+    return 0;
+}
+s32 PS4_SYSV_ABI sceNpMatching2ContextStart_hook() {
+    LOG_ERROR("(STUBBED) called,returning zero to {}", __builtin_return_address(0));
+    return 0;
+}
+s32 PS4_SYSV_ABI sceNpMatching2GetServerId_hook() {
+    LOG_ERROR("(STUBBED) called,returning zero to {}", __builtin_return_address(0));
+    return 0;
+}
+s32 PS4_SYSV_ABI sceNpMatching2SetDefaultRequestOptParam_hook() {
+    LOG_ERROR("(STUBBED) called,returning zero to {}", __builtin_return_address(0));
+    return 0;
+}
+s32 PS4_SYSV_ABI sceNpMatching2RegisterRoomEventCallback_hook() {
+    LOG_ERROR("(STUBBED) called,returning zero to {}", __builtin_return_address(0));
+    return 0;
+}
+s32 PS4_SYSV_ABI sceNpMatching2RegisterSignalingCallback_hook() {
+    LOG_ERROR("(STUBBED) called,returning zero to {}", __builtin_return_address(0));
+    return 0;
+}
+s32 PS4_SYSV_ABI sceNpMatching2RegisterLobbyEventCallback() {
+    LOG_ERROR("(STUBBED) called,returning zero to {}", __builtin_return_address(0));
+    return 0;
+}
+
+s32 PS4_SYSV_ABI sceNpRegisterGamePresenceCallback_hook() {
+    LOG_ERROR("(STUBBED) called,returning zero to {}", __builtin_return_address(0));
+    return 0;
+}
+
+s32 PS4_SYSV_ABI sceNpRegisterStateCallback_hook() {
+    LOG_ERROR("(STUBBED) called,returning zero to {}", __builtin_return_address(0));
+    return 0;
+}
 
 s32 PS4_SYSV_ABI sceNpWebApiCreateContext_hook() {
     LOG_ERROR("(STUBBED) called");
@@ -322,32 +385,34 @@ s32 CreateNpAuthRequest(bool async) {
     return req_index + ORBIS_NP_AUTH_REQUEST_ID_OFFSET + 1;
 }
 
-
-const char *extract_path(const char *url) {
-    if (!url) return NULL;
-    const char *start = strstr(url, "://");
-    if (!start) return NULL;
+const char* extract_path(const char* url) {
+    if (!url)
+        return NULL;
+    const char* start = strstr(url, "://");
+    if (!start)
+        return NULL;
     start += 3;
-    const char *path = strchr(start, '/');
+    const char* path = strchr(start, '/');
     return path ? path : "";
 }
 
-char *GetUrltoRedirect(const char *url) {
-    if (!url) return NULL;
+char* GetUrltoRedirect(const char* url) {
+    if (!url)
+        return NULL;
 
-    if (strstr(url, "ss4.scej-network.jp") != NULL || 
-        strstr(url, "bb.scej-network.jp") != NULL )
-    {
-        const char *Path = extract_path(url);
-        if (!Path) return NULL;
+    if (strstr(url, "ss4.scej-network.jp") != NULL || strstr(url, "bb.scej-network.jp") != NULL) {
+        const char* Path = extract_path(url);
+        if (!Path)
+            return NULL;
 
         size_t newUrlSize = strlen(RedirectURL) + strlen(Path) + 1;
-        char *newRedirectUrl = (char *)malloc(newUrlSize);
-        if (!newRedirectUrl) return NULL;
+        char* newRedirectUrl = (char*)malloc(newUrlSize);
+        if (!newRedirectUrl)
+            return NULL;
 
         strcpy(newRedirectUrl, RedirectURL);
         strcat(newRedirectUrl, Path);
-        return newRedirectUrl; 
+        return newRedirectUrl;
     }
 
     return NULL;
@@ -367,7 +432,6 @@ s32 PS4_SYSV_ABI sceNpAuthCreateRequest_hook() {
     return CreateNpAuthRequest(false);
 }
 
-
 s32 PS4_SYSV_ABI sceNpSignalingInitialize_hook() {
     LOG_ERROR("(STUBBED) called");
     return ORBIS_OK;
@@ -380,59 +444,60 @@ int PS4_SYSV_ABI sceSslInit_hook(std::size_t poolSize) {
     return ++id;
 }
 
-
 int32_t sceNpSetContentRestriction_hook() {
 
-LOG_ERROR("NPSETCONTENTRESTRICTION called, returning zero to '{}'", __builtin_return_address(0));
+    LOG_ERROR("NPSETCONTENTRESTRICTION called, returning zero to '{}'",
+              __builtin_return_address(0));
 
-return 0;
+    return 0;
 }
 
+int32_t sceHttpCreateRequestWithURL_hook(int32_t conectId, int32_t method, const char* url,
+                                         uint64_t contentLength) {
+    // This will likely be temporary, the change to eboot most likely will make this unnecessary,
+    // but it is here for logging purposes.
 
-int32_t sceHttpCreateRequestWithURL_hook(int32_t conectId, int32_t method, const char *url, uint64_t contentLength) {
-    //This will likely be temporary, the change to eboot most likely will make this unnecessary, but it is here for logging purposes.
-    
-    char * newRedirectUrl = GetUrltoRedirect(url);
+    char* newRedirectUrl = GetUrltoRedirect(url);
     LOG_ERROR("sceHttp::sceHttpCreateRequestWithURL->Url: '{}'", url);
 
-    if (newRedirectUrl) {       
+    if (newRedirectUrl) {
         LOG_ERROR("Redirecting CreateRequest URL:");
         LOG_ERROR("Original: '{}'", url);
         LOG_ERROR("Redirected: '{}'", newRedirectUrl);
-        
-        int32_t result = HOOK_CONTINUE(sceHttpCreateRequestWithURL, 
-            int32_t(*)(int32_t, int32_t, const char *, uint64_t), conectId, method, newRedirectUrl, contentLength);
-        
-        free(newRedirectUrl);
-        return result;
-    } 
-    
-    return HOOK_CONTINUE(sceHttpCreateRequestWithURL, 
-        int32_t(*)(int32_t, int32_t, const char *, uint64_t), 
-        conectId, method, url, contentLength);
-}
 
-int32_t sceHttpCreateConnectionWithURL_hook(int32_t templateId, const char *url, bool isKeepalive) {
-    char * newRedirectUrl = GetUrltoRedirect(url);
-    // This will likely be temporary, the change to eboot most likely will make this unnecessary,
-    // but it is here for logging purposes.
-    if (newRedirectUrl) {
-        
-        LOG_ERROR("Redirecting CreateConnection URL:");
-        LOG_ERROR("Original: '{}'", url);
-        LOG_ERROR("Redirected: '{}'", newRedirectUrl);
-        
-        int32_t result = HOOK_CONTINUE(sceHttpCreateConnectionWithURL, 
-            int32_t(*)(int32_t, const char *, bool), 
-            templateId, newRedirectUrl, isKeepalive);
-        
+        int32_t result = HOOK_CONTINUE(sceHttpCreateRequestWithURL,
+                                       int32_t (*)(int32_t, int32_t, const char*, uint64_t),
+                                       conectId, method, newRedirectUrl, contentLength);
+
         free(newRedirectUrl);
         return result;
     }
 
-    return HOOK_CONTINUE(sceHttpCreateConnectionWithURL, 
-        int32_t(*)(int32_t, const char *, bool), 
-        templateId, url, isKeepalive);
+    return HOOK_CONTINUE(sceHttpCreateRequestWithURL,
+                         int32_t (*)(int32_t, int32_t, const char*, uint64_t), conectId, method,
+                         url, contentLength);
+}
+
+int32_t sceHttpCreateConnectionWithURL_hook(int32_t templateId, const char* url, bool isKeepalive) {
+    char* newRedirectUrl = GetUrltoRedirect(url);
+    // This will likely be temporary, the change to eboot most likely will make this unnecessary,
+    // but it is here for logging purposes.
+    if (newRedirectUrl) {
+
+        LOG_ERROR("Redirecting CreateConnection URL:");
+        LOG_ERROR("Original: '{}'", url);
+        LOG_ERROR("Redirected: '{}'", newRedirectUrl);
+
+        int32_t result =
+            HOOK_CONTINUE(sceHttpCreateConnectionWithURL, int32_t (*)(int32_t, const char*, bool),
+                          templateId, newRedirectUrl, isKeepalive);
+
+        free(newRedirectUrl);
+        return result;
+    }
+
+    return HOOK_CONTINUE(sceHttpCreateConnectionWithURL, int32_t (*)(int32_t, const char*, bool),
+                         templateId, url, isKeepalive);
 }
 
 int PS4_SYSV_ABI sceHttpsEnableOption_hook(u32 options) {
@@ -445,12 +510,10 @@ int PS4_SYSV_ABI sceHttpsDisableOption_hook() {
     return ORBIS_OK;
 }
 
-
-
 s32 PS4_SYSV_ABI sceNpAuthPollAsync_hook(s32 req_id, s32* result) {
-    LOG_ERROR("ASYNC AUTH POLL CALLED");
-	
-	if (result == nullptr) {
+    // LOG_ERROR("ASYNC AUTH POLL CALLED");
+
+    if (result == nullptr) {
         return ORBIS_NP_AUTH_ERROR_INVALID_ARGUMENT;
     }
 
@@ -470,16 +533,17 @@ s32 PS4_SYSV_ABI sceNpAuthPollAsync_hook(s32 req_id, s32* result) {
     // Since we're not actually performing any sort of network request here,
     // we can just set result based on the request and return.
     *result = g_auth_requests[req_index].result;
-    LOG_ERROR("called req_id = '{}', returning result = '{}'", req_id, static_cast<u32>(*result));
+    // LOG_ERROR("called req_id = '{}', returning result = '{}'", req_id,
+    // static_cast<u32>(*result));
     return ORBIS_OK;
 }
 
-s32 PS4_SYSV_ABI sceNpAuthCreateAsyncRequest_hook(const OrbisNpAuthCreateAsyncRequestParameter* param) {
-	LOG_ERROR("AUTH CREATE ASYNC REQUEST MADE!");
+s32 PS4_SYSV_ABI
+sceNpAuthCreateAsyncRequest_hook(const OrbisNpAuthCreateAsyncRequestParameter* param) {
+    LOG_ERROR("AUTH CREATE ASYNC REQUEST MADE!");
     if (param == nullptr) {
         LOG_ERROR("PARAMETER WAS NULL");
         return ORBIS_NP_AUTH_ERROR_INVALID_ARGUMENT;
-
     }
     if (param->size != sizeof(OrbisNpAuthCreateAsyncRequestParameter)) {
         LOG_ERROR("PARAMETER SIZE MISMATCH");
@@ -713,7 +777,7 @@ s32 PS4_SYSV_ABI sceNpCreateRequest_hook() {
 }
 
 s32 PS4_SYSV_ABI sceNpCreateAsyncRequest_hook(const OrbisNpCreateAsyncRequestParameter* param) {
-    LOG_ERROR("SCENPCREATEASYNCREQUEST CALLED!  AUTH IS COMING!");
+    // LOG_ERROR("SCENPCREATEASYNCREQUEST CALLED!  AUTH IS COMING!");
     if (param == nullptr) {
         return ORBIS_NP_ERROR_INVALID_ARGUMENT;
     }
@@ -721,7 +785,8 @@ s32 PS4_SYSV_ABI sceNpCreateAsyncRequest_hook(const OrbisNpCreateAsyncRequestPar
     if (param->size != sizeof(OrbisNpCreateAsyncRequestParameter)) {
         return ORBIS_NP_ERROR_INVALID_SIZE;
     }
-    LOG_ERROR("SCENPCREATEASYNCREQUEST WAS SUCCESSFUL! CREATING NPREQUEST, SETTING ASYNC TO TRUE!");
+    // LOG_ERROR("SCENPCREATEASYNCREQUEST WAS SUCCESSFUL! CREATING NPREQUEST, SETTING ASYNC TO
+    // TRUE!");
     return CreateNpRequest(true);
 }
 
@@ -875,8 +940,8 @@ s32 PS4_SYSV_ABI sceNpCheckPlus_hook(s32 req_id, const OrbisNpCheckPlusParameter
         return ORBIS_NP_ERROR_SIGNED_OUT;
     }
 
-    LOG_ERROR("(STUBBED) called, req_id = {:#x}, is_async = {}, param.features = {:#x}", req_id,
-              request.async, param->features);
+    // LOG_ERROR("(STUBBED) called, req_id = {:#x}, is_async = {}, param.features = {:#x}", req_id,
+    // request.async, param->features);
 
     // For now, set authorized to true to signal PS+ access.
     result->authorized = true;
@@ -1120,8 +1185,8 @@ s32 PS4_SYSV_ABI sceNpPollAsync_hook(s32 req_id, s32* result) {
     // Since we're not actually performing any sort of network request here,
     // we can just set result based on the request and return.
     *result = g_requests[req_index].result;
-    LOG_WARNING("called req_id = {:#x}, returning result = {:#x}", req_id,
-                static_cast<u32>(*result));
+    // LOG_WARNING("called req_id = {:#x}, returning result = {:#x}", req_id,
+    // static_cast<u32>(*result));
     return ORBIS_OK;
 }
 
@@ -1250,15 +1315,20 @@ s32 PS4_SYSV_ABI sceNpGetAccountIdA_hook(OrbisUserServiceUserId user_id, u64* ac
 }
 
 s32 PS4_SYSV_ABI sceNpGetNpId_hook(OrbisUserServiceUserId user_id, OrbisNpId* np_id) {
-    LOG_DEBUG("user_id {}", user_id);
+    LOG_ERROR("user_id {}", user_id);
+
+    static const char* kTestName = "metrikPS4";
     if (np_id == nullptr) {
         return ORBIS_NP_ERROR_INVALID_ARGUMENT;
     }
     if (!g_signed_in) {
         return ORBIS_NP_ERROR_SIGNED_OUT;
     }
+
     memset(np_id, 0, sizeof(OrbisNpId));
-    strncpy(np_id->handle.data, Config::getUserName().c_str(), sizeof(np_id->handle.data));
+    LOG_ERROR("np_id = '{}'", (void*)np_id);
+    strncpy(np_id->handle.data, kTestName, sizeof(np_id->handle.data));
+    LOG_ERROR("np_id = '{}'", np_id->handle.data);
     return ORBIS_OK;
 }
 
@@ -1325,13 +1395,15 @@ s32 PS4_SYSV_ABI sceNpCheckCallbackForLib_hook() {
     return ORBIS_OK;
 }
 
-//HOOK_INIT(sceHttpCreateRequestWithURL);
-//s32 sceHttpCreateRequestWithURL_hook(s32 tmpl_id, s32 method, const char* url, u64 content_length) {
-//    std::string new_url = ReplaceHost(std::string(url));
-//    LOG_INFO("Replaced {} with {} 1", url, new_url);
-//    return HOOK_CONTINUE(sceHttpCreateRequestWithURL, s32 (*)(s32, s32, const char*, u64), tmpl_id,
-//                         method, new_url.c_str(), content_length);
-//}
+// HOOK_INIT(sceHttpCreateRequestWithURL);
+// s32 sceHttpCreateRequestWithURL_hook(s32 tmpl_id, s32 method, const char* url, u64
+// content_length) {
+//     std::string new_url = ReplaceHost(std::string(url));
+//     LOG_INFO("Replaced {} with {} 1", url, new_url);
+//     return HOOK_CONTINUE(sceHttpCreateRequestWithURL, s32 (*)(s32, s32, const char*, u64),
+//     tmpl_id,
+//                          method, new_url.c_str(), content_length);
+// }
 
 s32 attr_public plugin_load(s32 argc, const char* argv[]) {
     final_printf("[GoldHEN] <%s\\Ver.0x%08x> %s\n", g_pluginName, g_pluginVersion, __func__);
@@ -1342,7 +1414,6 @@ s32 attr_public plugin_load(s32 argc, const char* argv[]) {
         memcpy(titleid, procInfo.titleid, sizeof(titleid));
         print_proc_info();
     }
-    
 
     HOOK(sceNpCreateRequest);
     HOOK(sceNpCreateAsyncRequest);
@@ -1390,20 +1461,26 @@ s32 attr_public plugin_load(s32 argc, const char* argv[]) {
     HOOK(sceNpWebApiDeleteRequest);
     HOOK(sceHttpsEnableOption);
     HOOK(sceHttpsDisableOption);
-	HOOK(sceHttpCreateConnectionWithURL);
-	HOOK(sceHttpCreateRequestWithURL);
+    HOOK(sceHttpCreateConnectionWithURL);
+    HOOK(sceHttpCreateRequestWithURL);
     HOOK(sceSslInit);
     HOOK(sceNpSignalingInitialize);
     HOOK(sceNpScoreCreateNpTitleCtx);
     HOOK(sceNpWebApiCreateContext);
     HOOK(sceNpWebApiCreatePushEventFilter);
-    HOOK(sceNpWebApiRegisterPushEventCallback);      
+    HOOK(sceNpWebApiRegisterPushEventCallback);
+    HOOK(sceNpRegisterStateCallback);
+    HOOK(sceNpMatching2RegisterContextCallback);
+    HOOK(sceNpMatching2CreateContext);
+    HOOK(sceNpMatching2ContextStart);
+    HOOK(sceNpMatching2Initialize);
+    HOOK(sceNpRegisterGamePresenceCallback);
+    HOOK(sceNpSetNpTitleId);
     return 0;
 }
 
 s32 attr_public plugin_unload(s32 argc, const char* argv[]) {
     final_printf("[GoldHEN] <%s\\Ver.0x%08x> %s\n", g_pluginName, g_pluginVersion, __func__);
-    
 
     UNHOOK(sceNpCreateRequest);
     UNHOOK(sceNpCreateAsyncRequest);
@@ -1451,14 +1528,21 @@ s32 attr_public plugin_unload(s32 argc, const char* argv[]) {
     UNHOOK(sceNpWebApiDeleteRequest);
     UNHOOK(sceHttpsEnableOption);
     UNHOOK(sceHttpsDisableOption);
-	UNHOOK(sceHttpCreateConnectionWithURL);
-	UNHOOK(sceHttpCreateRequestWithURL);
+    UNHOOK(sceHttpCreateConnectionWithURL);
+    UNHOOK(sceHttpCreateRequestWithURL);
     UNHOOK(sceSslInit);
     UNHOOK(sceNpSignalingInitialize);
     UNHOOK(sceNpScoreCreateNpTitleCtx);
     UNHOOK(sceNpWebApiCreateContext);
     UNHOOK(sceNpWebApiCreatePushEventFilter);
-    UNHOOK(sceNpWebApiRegisterPushEventCallback);        
+    UNHOOK(sceNpWebApiRegisterPushEventCallback);
+    UNHOOK(sceNpRegisterStateCallback);
+    UNHOOK(sceNpMatching2RegisterContextCallback);
+    UNHOOK(sceNpMatching2CreateContext);
+    UNHOOK(sceNpMatching2ContextStart);
+    UNHOOK(sceNpMatching2Initialize);
+    UNHOOK(sceNpRegisterGamePresenceCallback);
+    UNHOOK(sceNpSetNpTitleId);
     return 0;
 }
 
