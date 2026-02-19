@@ -18,7 +18,7 @@ TARGET_ELF   := $(BUILD_FOLDER)/elf$(TYPE)/$(OUTPUT_PRX)
 TARGETSTUB   := $(OUTPUT_PRX).so
 
 # Libraries linked into the ELF.
-LIBS := -lSceLibcInternal -lGoldHEN_Hook -lkernel -lSceSysmodule -lc -lc++ -lSceHttp -lSceUserService -lSceNpManager -lSceNpWebApi -lSceNpAuth -lSceNpScore
+LIBS := -lSceLibcInternal -lGoldHEN_Hook -lkernel -lSceSysmodule -lc -lc++ -lSceHttp -lSceUserService -lSceNpManager -lSceNpWebApi -lSceNpAuth -lSceNpScore -lSceNpSignaling -lSceSsl
 
 EXTRAFLAGS := $(DEBUG_FLAGS) $(LOG_TYPE) -fcolor-diagnostics -Wall
 
@@ -74,7 +74,7 @@ $(TARGETSTUB): $(INTDIR) $(STUBOBJS)
 $(INTDIR)/%.o: $(PROJDIR)/%.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-$(INTDIR)/%.o: $(PROJDIR)/%.cpp
+$(INTDIR)/%.o: $(PROJDIR)/%.cpp 
 	$(CCX) $(CXXFLAGS) -o $@ $<
 
 $(INTDIR)/%.o.stub: $(PROJDIR)/%.c
