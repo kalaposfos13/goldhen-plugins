@@ -28,6 +28,7 @@
 #include "np_web_api.h"
 
 
+
 #include "ssl.h"
 
 #include "np_signaling.h"
@@ -83,6 +84,16 @@ struct NpAuthRequest {
     NpAuthRequestState state;
     bool async;
     s32 result;
+};
+
+enum class OrbisUserServiceEventType {
+    Login = 0,  // Login event
+    Logout = 1, // Logout event
+};
+
+struct OrbisUserServiceEvent {
+    OrbisUserServiceEventType event;
+    OrbisUserServiceUserId userId;
 };
 
 static std::vector<NpAuthRequest> g_auth_requests;
@@ -178,7 +189,15 @@ HOOK_INIT(sceHttpCreateConnectionWithURL);
 HOOK_INIT(sceHttpCreateRequestWithURL);
 
 HOOK_INIT(sceSslInit);
+
 HOOK_INIT(sceNpSignalingInitialize);
+HOOK_INIT(sceNpSignalingCreateContext);
+HOOK_INIT(sceNpSignalingActivateConnection);
+HOOK_INIT(sceNpSignalingDeactivateConnection);
+HOOK_INIT(sceNpSignalingDeleteContext);
+HOOK_INIT(sceNpSignalingGetConnectionStatus);
+HOOK_INIT(sceNpSignalingTerminate);
+
 HOOK_INIT(sceNpScoreCreateNpTitleCtx);
 
 HOOK_INIT(sceNpMatching2RegisterContextCallback);
@@ -186,12 +205,120 @@ HOOK_INIT(sceNpMatching2CreateContext);
 HOOK_INIT(sceNpMatching2ContextStart);
 HOOK_INIT(sceNpMatching2Initialize);
 HOOK_INIT(sceNpRegisterGamePresenceCallback);
-HOOK_INIT(sceNpSetNpTitleId);
+
 HOOK_INIT(sceNpMatching2GetServerId);
 HOOK_INIT(sceNpMatching2SetDefaultRequestOptParam);
 HOOK_INIT(sceNpMatching2RegisterRoomEventCallback);
 HOOK_INIT(sceNpMatching2RegisterSignalingCallback);
 HOOK_INIT(sceNpMatching2RegisterLobbyEventCallback);
+HOOK_INIT(sceNpMatching2GetWorldInfoList);
+
+HOOK_INIT(sceUserServiceGetUserName);
+HOOK_INIT(sceUserServiceGetInitialUser);
+HOOK_INIT(sceUserServiceGetLoginUserIdList);
+HOOK_INIT(sceUserServiceInitialize);
+HOOK_INIT(sceUserServiceGetEvent);
+
+
+s32 PS4_SYSV_ABI sceUserServiceInitialize_hook(const OrbisUserServiceInitializeParams* initParams) {
+    LOG_WARNING("(dummy) called");
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI sceUserServiceGetLoginUserIdList_hook(OrbisUserServiceLoginUserIdList* userIdList) {
+    LOG_DEBUG("called");
+    if (userIdList == nullptr) {
+        LOG_ERROR("user_id is null");
+        return ORBIS_USER_SERVICE_ERROR_INVALID_ARGUMENT;
+    }
+    // TODO only first user, do the others as well
+    userIdList->userId[0] = 1;
+    userIdList->userId[1] = ORBIS_USER_SERVICE_ERROR_NOT_LOGGED_IN;
+    userIdList->userId[2] = ORBIS_USER_SERVICE_ERROR_NOT_LOGGED_IN;
+    userIdList->userId[3] = ORBIS_USER_SERVICE_ERROR_NOT_LOGGED_IN;
+
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI sceUserServiceGetInitialUser_hook(int* user_id) {
+    LOG_DEBUG("called");
+    if (user_id == nullptr) {
+        LOG_ERROR("user_id is null");
+        return ORBIS_USER_SERVICE_ERROR_INVALID_ARGUMENT;
+    }
+    // select first user (TODO add more)
+    *user_id = 1;
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI sceUserServiceGetEvent_hook(OrbisUserServiceEvent* event) {
+    LOG_ERROR("(DUMMY) called");
+    // fake a loggin event
+    static bool logged_in = false;
+
+    if (!logged_in) {
+        logged_in = true;
+        event->event = OrbisUserServiceEventType::Login;
+        event->userId = 1;
+        return ORBIS_OK;
+    }
+
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI sceUserServiceGetUserName_hook(int user_id, char* user_name, std::size_t size) {
+    LOG_ERROR("sceUserServiceGetUserName_hook: user_id {}, size {}", user_id, size);
+
+    if (!user_name)
+        return ORBIS_USER_SERVICE_ERROR_INVALID_ARGUMENT;
+
+    const char* kTestName = "metrikonPS4";
+    size_t len = strlen(kTestName);
+
+    // Must allow space for null terminator
+    if (size <= len)
+        return ORBIS_USER_SERVICE_ERROR_BUFFER_TOO_SHORT;
+
+    memcpy(user_name, kTestName, len + 1);
+
+    LOG_ERROR("sceUserServiceGetUserName_hook returning '{}'", user_name);
+
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI sceNpSignalingActivateConnection_hook() {
+    LOG_ERROR("(STUBBED) called");
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI sceNpSignalingCreateContext_hook(s32 param_1, void* param_2, void* param_3,
+                                             s32* context_id) {
+    LOG_ERROR("(STUBBED) sceNpSignalingCreateContext called");
+    static s32 context_id_counter = 0;
+    *context_id = ++context_id_counter;
+
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI sceNpSignalingDeactivateConnection_hook() {
+    LOG_ERROR("(STUBBED) called");
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI sceNpSignalingDeleteContext_hook() {
+    LOG_ERROR("(STUBBED) called");
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI sceNpSignalingGetConnectionStatus_hook() {
+    LOG_ERROR("(STUBBED) called");
+    return ORBIS_OK;
+}
+
+s32 PS4_SYSV_ABI sceNpSignalingTerminate_hook() {
+    LOG_ERROR("(STUBBED) called");
+    return ORBIS_OK;
+}
 
 s32 PS4_SYSV_ABI sceNpSetNpTitleId_hook() {
     LOG_ERROR("(STUBBED) called,returning zero to {}", __builtin_return_address(0));
@@ -202,6 +329,10 @@ s32 PS4_SYSV_ABI sceNpMatching2Initialize_hook() {
     return 0;
 }
 s32 PS4_SYSV_ABI sceNpMatching2RegisterContextCallback_hook() {
+    LOG_ERROR("(STUBBED) called,returning zero to {}", __builtin_return_address(0));
+    return 0;
+}
+s32 PS4_SYSV_ABI sceNpMatching2GetWorldInfoList_hook() {
     LOG_ERROR("(STUBBED) called,returning zero to {}", __builtin_return_address(0));
     return 0;
 }
@@ -229,7 +360,7 @@ s32 PS4_SYSV_ABI sceNpMatching2RegisterSignalingCallback_hook() {
     LOG_ERROR("(STUBBED) called,returning zero to {}", __builtin_return_address(0));
     return 0;
 }
-s32 PS4_SYSV_ABI sceNpMatching2RegisterLobbyEventCallback() {
+s32 PS4_SYSV_ABI sceNpMatching2RegisterLobbyEventCallback_hook() {
     LOG_ERROR("(STUBBED) called,returning zero to {}", __builtin_return_address(0));
     return 0;
 }
@@ -1314,39 +1445,51 @@ s32 PS4_SYSV_ABI sceNpGetAccountIdA_hook(OrbisUserServiceUserId user_id, u64* ac
     return ORBIS_OK;
 }
 
-s32 PS4_SYSV_ABI sceNpGetNpId_hook(OrbisUserServiceUserId user_id, OrbisNpId* np_id) {
-    LOG_ERROR("user_id {}", user_id);
+s32 PS4_SYSV_ABI sceNpGetNpId_hook(OrbisUserServiceUserId user_id, OrbisNpId* np_id) {    
+        LOG_ERROR("sceNpGetNpId_hook: user_id {}", user_id);
 
-    static const char* kTestName = "metrikPS4";
-    if (np_id == nullptr) {
-        return ORBIS_NP_ERROR_INVALID_ARGUMENT;
-    }
-    if (!g_signed_in) {
-        return ORBIS_NP_ERROR_SIGNED_OUT;
-    }
+        if (!np_id)
+            return ORBIS_NP_ERROR_INVALID_ARGUMENT;
 
-    memset(np_id, 0, sizeof(OrbisNpId));
-    LOG_ERROR("np_id = '{}'", (void*)np_id);
-    strncpy(np_id->handle.data, kTestName, sizeof(np_id->handle.data));
-    LOG_ERROR("np_id = '{}'", np_id->handle.data);
-    return ORBIS_OK;
+        if (!g_signed_in)
+            return ORBIS_NP_ERROR_SIGNED_OUT;
+
+        memset(np_id, 0, sizeof(OrbisNpId));
+
+        const char* kTestName = "metrikPS4";
+        strncpy(np_id->handle.data, kTestName, sizeof(np_id->handle.data));
+
+        
+        LOG_ERROR("NpId struct @ {}", (void*)np_id);
+        LOG_ERROR("  handle.data = '{}'", np_id->handle.data);
+        LOG_ERROR("  handle.term = {}", np_id->handle.term);
+        return ORBIS_OK;
+   
 }
 
 s32 PS4_SYSV_ABI sceNpGetOnlineId_hook(OrbisUserServiceUserId user_id, OrbisNpOnlineId* online_id) {
-    LOG_ERROR("user_id {}", user_id);
+        LOG_ERROR("sceNpGetOnlineId_hook: user_id {}", user_id);
 
-    static const char* kTestName = "metrikPS4";
-    if (online_id == nullptr) {
-        return ORBIS_NP_ERROR_INVALID_ARGUMENT;
-    }
-    if (!g_signed_in) {
-        return ORBIS_NP_ERROR_SIGNED_OUT;
-    }
-    memset(online_id, 0, sizeof(OrbisNpOnlineId));
-    LOG_ERROR("Online_id = '{}'", (void*)online_id);
-    strncpy(online_id->data, kTestName, sizeof(online_id->data));
-    LOG_ERROR("Online_id = '{}'", online_id->data);
-    return ORBIS_OK;
+        if (!online_id)
+            return ORBIS_NP_ERROR_INVALID_ARGUMENT;
+
+        if (!g_signed_in)
+            return ORBIS_NP_ERROR_SIGNED_OUT;
+
+        memset(online_id, 0, sizeof(OrbisNpOnlineId));
+
+        const char* kTestName = "metrikPS4";
+        size_t len = strnlen(kTestName, ORBIS_NP_ONLINEID_MAX_LENGTH - 1);
+
+        memcpy(online_id->data, kTestName, len);
+        online_id->term = (s8)len;
+
+        
+        LOG_ERROR("OnlineId struct @ {}", (void*)online_id);
+        LOG_ERROR("  data      = '{}'", online_id->data);
+        LOG_ERROR("  term      = {}", online_id->term);
+        return ORBIS_OK;
+    
 }
 
 s32 PS4_SYSV_ABI sceNpGetNpReachabilityState_hook(OrbisUserServiceUserId user_id,
@@ -1474,8 +1617,25 @@ s32 attr_public plugin_load(s32 argc, const char* argv[]) {
     HOOK(sceNpMatching2CreateContext);
     HOOK(sceNpMatching2ContextStart);
     HOOK(sceNpMatching2Initialize);
+    HOOK(sceNpMatching2GetServerId);
+    HOOK(sceNpMatching2SetDefaultRequestOptParam);
+    HOOK(sceNpMatching2RegisterRoomEventCallback);
+    HOOK(sceNpMatching2RegisterSignalingCallback);
+    HOOK(sceNpMatching2RegisterLobbyEventCallback);
     HOOK(sceNpRegisterGamePresenceCallback);
     HOOK(sceNpSetNpTitleId);
+    //HOOK(sceUserServiceGetUserName);
+    HOOK(sceNpMatching2GetWorldInfoList);
+    HOOK(sceNpSignalingCreateContext);
+    HOOK(sceNpSignalingActivateConnection);
+    HOOK(sceNpSignalingDeactivateConnection);
+    HOOK(sceNpSignalingDeleteContext);
+    HOOK(sceNpSignalingGetConnectionStatus);
+    HOOK(sceNpSignalingTerminate);
+    //HOOK(sceUserServiceGetInitialUser);
+    //HOOK(sceUserServiceGetLoginUserIdList);
+    //HOOK(sceUserServiceInitialize);
+    //HOOK(sceUserServiceGetEvent);  
     return 0;
 }
 
@@ -1543,6 +1703,23 @@ s32 attr_public plugin_unload(s32 argc, const char* argv[]) {
     UNHOOK(sceNpMatching2Initialize);
     UNHOOK(sceNpRegisterGamePresenceCallback);
     UNHOOK(sceNpSetNpTitleId);
+    //UNHOOK(sceUserServiceGetUserName);
+    UNHOOK(sceNpMatching2GetWorldInfoList);
+    UNHOOK(sceNpSignalingCreateContext);
+    UNHOOK(sceNpSignalingActivateConnection);
+    UNHOOK(sceNpSignalingDeactivateConnection);
+    UNHOOK(sceNpSignalingDeleteContext);
+    UNHOOK(sceNpSignalingGetConnectionStatus);
+    UNHOOK(sceNpSignalingTerminate);
+    UNHOOK(sceNpMatching2GetServerId);
+    UNHOOK(sceNpMatching2SetDefaultRequestOptParam);
+    UNHOOK(sceNpMatching2RegisterRoomEventCallback);
+    UNHOOK(sceNpMatching2RegisterSignalingCallback);
+    UNHOOK(sceNpMatching2RegisterLobbyEventCallback);
+    //UNHOOK(sceUserServiceGetInitialUser);
+    //UNHOOK(sceUserServiceGetLoginUserIdList);
+    //UNHOOK(sceUserServiceInitialize);
+    //UNHOOK(sceUserServiceGetEvent);
     return 0;
 }
 
